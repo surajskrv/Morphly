@@ -59,6 +59,7 @@ frontend/coverage/
 # ── Backend (FastAPI / Python) ──
 backend/__pycache__/
 backend/*.py[cod]
+backend/*.pyc
 backend/*$py.class
 backend/venv/
 backend/.venv/
