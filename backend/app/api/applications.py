@@ -13,13 +13,13 @@ async def create_application(
     app_in: ApplicationCreate,
     current_user: User = Depends(get_current_user)
 ):
-    app_doc = Application(**app_in.dict(), user_id=str(current_user.id))
+    app_doc = Application(**app_in.model_dump(), user_id=str(current_user.id))
     await app_doc.insert()
     
     # Trigger auto-apply
     apply_to_job_task.delay(str(app_doc.id))
     
-    res = app_doc.dict()
+    res = app_doc.model_dump()
     res["id"] = str(app_doc.id)
     return res
 

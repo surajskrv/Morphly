@@ -82,5 +82,9 @@ backend/celerybeat-schedule
 backend/celerybeat.pid
 backend/uploads/
 
+__pycache__
+*.pyc
+
 # ── Docker ──
 .dockerignore
+

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import api from '@/services/api';
 
-interface Job {
+export interface Job {
   id: string;
   external_id: string;
   title: string;
@@ -28,7 +28,7 @@ export const useJobsStore = create<JobsState>()((set) => ({
     try {
       const res = await api.get('/jobs');
       set({ jobs: res.data, loading: false });
-    } catch (err) {
+    } catch {
       set({ loading: false });
     }
   }

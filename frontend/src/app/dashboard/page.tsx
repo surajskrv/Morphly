@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { useJobsStore } from "@/store/jobs";
+import type { Job } from "@/store/jobs";
 import { Navbar } from "@/components/layout/navbar";
 import { PreferencesCard } from "@/components/dashboard/preferences-card";
 import { ResumeCard } from "@/components/dashboard/resume-card";
@@ -81,7 +82,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="grid gap-3">
-              {jobs.map((job: any) => (
+              {jobs.map((job: Job) => (
                 <JobCard key={job.id} job={job} />
               ))}
             </div>

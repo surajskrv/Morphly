@@ -14,15 +14,19 @@ async def upload_resume(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user)
 ):
-    if not file.filename.endswith(('.pdf', '.doc', '.docx')):
+    filename = os.path.basename((file.filename or "").strip())
+    if not filename:
+        raise HTTPException(status_code=400, detail="File name is required.")
+
+    if not filename.lower().endswith((".pdf", ".doc", ".docx")):
         raise HTTPException(status_code=400, detail="Invalid file type. Only PDF and Word docs are allowed.")
 
-    file_path = os.path.join(UPLOAD_DIR, f"{current_user.id}_{file.filename}")
+    file_path = os.path.join(UPLOAD_DIR, f"{current_user.id}_{filename}")
     
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
-    return {"message": "Resume uploaded successfully", "filename": file.filename, "path": file_path}
+    return {"message": "Resume uploaded successfully", "filename": filename, "path": file_path}
 
 @router.get("/")
 async def get_resume(current_user: User = Depends(get_current_user)):

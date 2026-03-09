@@ -7,7 +7,12 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  if (token) {
+  const existingAuthHeader =
+    config.headers?.Authorization ||
+    (config.headers as Record<string, string | undefined> | undefined)?.authorization;
+
+  // Preserve explicit Authorization headers (e.g. login flow using a freshly issued token).
+  if (token && !existingAuthHeader) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;

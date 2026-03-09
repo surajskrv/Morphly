@@ -1,5 +1,9 @@
 import { AxiosError } from 'axios';
 
+type ValidationDetail = {
+  msg?: string;
+};
+
 /**
  * Extract a user-friendly error message from an Axios error or generic Error.
  */
@@ -9,7 +13,18 @@ export function getErrorMessage(error: unknown): string {
 
     if (typeof detail === 'string') return detail;
     if (Array.isArray(detail)) {
-      return detail.map((d: any) => d.msg || String(d)).join('; ');
+      return detail
+        .map((item) => {
+          if (item && typeof item === 'object' && 'msg' in item) {
+            const typedItem = item as ValidationDetail;
+            if (typeof typedItem.msg === 'string') {
+              return typedItem.msg;
+            }
+          }
+
+          return String(item);
+        })
+        .join('; ');
     }
 
     if (error.response) {
