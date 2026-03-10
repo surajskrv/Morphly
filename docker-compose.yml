@@ -39,5 +39,14 @@ services:
       - db
       - redis
 
+  frontend:
+    build: frontend/
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://35.238.104.251:8000
+    depends_on:
+      - api
+
 volumes:
   mongo_data:
