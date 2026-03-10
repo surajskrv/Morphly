@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
+  // Using a relative URL lets Next.js rewrites handle the proxying to bypass Mixed Content errors
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
   timeout: 15000,
 });
