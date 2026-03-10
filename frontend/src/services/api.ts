@@ -1,8 +1,18 @@
 import axios from 'axios';
 
+// Dynamically determine the default base URL to allow local dev while preventing CORS/Mixed Content issues
+let defaultBaseURL = '/api/v1'; // Default to relative path for Vercel/proxies
+
+if (typeof window !== 'undefined') {
+  if (window.location.hostname === 'localhost') {
+    defaultBaseURL = 'http://localhost:8000/api/v1';
+  } else if (window.location.hostname === '35.238.104.251') {
+    defaultBaseURL = 'http://35.238.104.251:8000/api/v1';
+  }
+}
+
 const api = axios.create({
-  // Using a relative URL lets Next.js rewrites handle the proxying to bypass Mixed Content errors
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || defaultBaseURL,
   timeout: 15000,
 });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { useJobsStore } from "@/store/jobs";
@@ -14,11 +14,13 @@ import { Briefcase, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 export default function DashboardPage() {
+  const [isMounted, setIsMounted] = useState(false);
   const { isAuthenticated, checkAuth } = useAuthStore();
   const { jobs, loading, fetchJobs } = useJobsStore();
   const router = useRouter();
 
   useEffect(() => {
+    setIsMounted(true);
     checkAuth().then(() => {
       if (!useAuthStore.getState().isAuthenticated) {
         router.push("/login");
@@ -37,7 +39,7 @@ export default function DashboardPage() {
     }
   };
 
-  if (!isAuthenticated) {
+  if (!isMounted || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <RefreshCw className="w-5 h-5 animate-spin text-primary/50" />
