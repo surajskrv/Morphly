@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REDIS_URL: str = "redis://localhost:6379/0"
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]
     
     # External APIs
     OPENAI_API_KEY: str = ""

@@ -4,14 +4,15 @@ const nextConfig: NextConfig = {
   /* config options here */
   devIndicators: false,
   async rewrites() {
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
     return [
       {
         source: '/api/v1/:path*',
-        destination: 'http://35.238.104.251:8000/api/v1/:path*',
+        destination: `${backendUrl}/api/v1/:path*`,
       },
       {
         source: '/auth/:path*', // For paths like /auth/register
-        destination: 'http://35.238.104.251:8000/auth/:path*',
+        destination: `${backendUrl}/auth/:path*`,
       }
     ];
   },
