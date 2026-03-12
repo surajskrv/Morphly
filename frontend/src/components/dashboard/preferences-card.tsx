@@ -29,7 +29,7 @@ export function PreferencesCard() {
     setSaving(true);
     try {
       await api.post("/preferences", { desired_role: role, location });
-      toast.success("Preferences saved");
+      toast.success("Preferences saved. Job fetch started.");
     } catch (err) {
       toast.error(getErrorMessage(err));
     } finally {

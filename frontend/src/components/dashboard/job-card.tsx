@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MapPin, DollarSign, ExternalLink } from "lucide-react";
 import api from "@/services/api";
@@ -11,6 +12,7 @@ interface Job {
   title: string;
   company: string;
   location?: string;
+  description?: string;
   url?: string;
   apply_url?: string;
   salary_min?: number;
@@ -19,13 +21,30 @@ interface Job {
   relevance_score?: number;
 }
 
-export function JobCard({ job }: { job: Job }) {
+interface JobCardProps {
+  job: Job;
+  applied?: boolean;
+  onApply?: (jobId: string) => Promise<unknown> | unknown;
+  showDescription?: boolean;
+}
+
+export function JobCard({ job, applied = false, onApply, showDescription = false }: JobCardProps) {
+  const [applying, setApplying] = useState(false);
+
   const handleApply = async () => {
+    if (applied || applying) return;
+    setApplying(true);
     try {
-      await api.post("/applications/", { job_id: job.id });
+      if (onApply) {
+        await onApply(job.id);
+      } else {
+        await api.post("/applications/", { job_id: job.id });
+      }
       toast.success(`Applied to ${job.title} at ${job.company}`);
     } catch (err) {
       toast.error(getErrorMessage(err));
+    } finally {
+      setApplying(false);
     }
   };
 
@@ -52,10 +71,13 @@ export function JobCard({ job }: { job: Job }) {
               </span>
             )}
           </div>
+          {showDescription && job.description ? (
+            <p className="text-sm text-muted-foreground mt-3 max-h-16 overflow-hidden">{job.description}</p>
+          ) : null}
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
-          <Button onClick={handleApply} size="sm" className="text-xs h-8 rounded-lg px-4">
-            Apply
+          <Button onClick={handleApply} size="sm" className="text-xs h-8 rounded-lg px-4" disabled={applied || applying}>
+            {applied ? "Applied" : applying ? "Applying..." : "Apply"}
           </Button>
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground" asChild>
             <a href={job.apply_url || job.url || "#"} target="_blank" rel="noopener noreferrer">

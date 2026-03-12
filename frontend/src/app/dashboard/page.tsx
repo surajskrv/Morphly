@@ -1,107 +1,159 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/auth";
-import { useJobsStore } from "@/store/jobs";
-import type { Job } from "@/store/jobs";
-import { Navbar } from "@/components/layout/navbar";
-import { PreferencesCard } from "@/components/dashboard/preferences-card";
-import { ResumeCard } from "@/components/dashboard/resume-card";
-import { JobCard } from "@/components/dashboard/job-card";
-import { Button } from "@/components/ui/button";
-import { Briefcase, RefreshCw } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { ArrowRight, BriefcaseBusiness, ClipboardCheck, FileText, RefreshCw, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 
-export default function DashboardPage() {
-  const { isAuthenticated, checkAuth } = useAuthStore();
-  const { jobs, loading, fetchJobs } = useJobsStore();
-  const router = useRouter();
+import api from "@/services/api";
+import { Button } from "@/components/ui/button";
+import { JobCard } from "@/components/dashboard/job-card";
+import { ApplicationCard } from "@/components/dashboard/application-card";
+import { useJobsStore } from "@/store/jobs";
+import { useApplicationsStore } from "@/store/applications";
+
+interface PreferenceSnapshot {
+  desired_role?: string | null;
+  location?: string | null;
+}
+
+export default function DashboardOverviewPage() {
+  const { jobs, fetchJobs, loading: jobsLoading } = useJobsStore();
+  const {
+    applications,
+    fetchApplications,
+    applyToJob,
+    isApplied,
+    loading: applicationsLoading,
+  } = useApplicationsStore();
+
+  const [resumeExists, setResumeExists] = useState(false);
+  const [preferences, setPreferences] = useState<PreferenceSnapshot>({});
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-
-    const initializeDashboard = async () => {
-      await checkAuth();
-
-      if (cancelled) return;
-
-      if (!useAuthStore.getState().isAuthenticated) {
-        router.push("/login");
-        return;
-      }
-
-      await fetchJobs();
+    const load = async () => {
+      await Promise.allSettled([
+        fetchJobs(),
+        fetchApplications(),
+        api.get("/resume").then((res) => setResumeExists(!!res.data?.resume_exists)),
+        api.get("/preferences").then((res) => {
+          setPreferences({
+            desired_role: res.data?.desired_role,
+            location: res.data?.location,
+          });
+        }),
+      ]);
     };
 
-    initializeDashboard();
+    load();
+  }, [fetchApplications, fetchJobs]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [checkAuth, router, fetchJobs]);
+  const profileScore = useMemo(() => {
+    const checkpoints = [
+      !!preferences.desired_role,
+      !!preferences.location,
+      resumeExists,
+    ];
+    const completed = checkpoints.filter(Boolean).length;
+    return Math.round((completed / checkpoints.length) * 100);
+  }, [preferences.desired_role, preferences.location, resumeExists]);
 
-  const handleRefresh = async () => {
+  const topJobs = jobs.slice(0, 3);
+  const recentApplications = applications.slice(0, 3);
+
+  const triggerRefresh = async () => {
+    setRefreshing(true);
     try {
-      await fetchJobs();
-      toast.success("Jobs refreshed");
+      await api.post("/jobs/fetch");
+      toast.success("Job fetch started");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await Promise.all([fetchJobs(), fetchApplications()]);
     } catch {
-      toast.error("Failed to refresh jobs");
+      toast.error("Failed to trigger job fetch");
+    } finally {
+      setRefreshing(false);
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <RefreshCw className="w-5 h-5 animate-spin text-primary/50" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex flex-col bg-section-cream">
-      <Navbar />
-
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {/* Welcome */}
-        <div>
-          <h1 className="font-semibold text-2xl">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Manage your job search from one place.</p>
-        </div>
-
-        {/* Settings Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <PreferencesCard />
-          <ResumeCard />
-        </div>
-
-        {/* Jobs */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-base">Recommended Jobs</h2>
-            <Button onClick={handleRefresh} variant="outline" size="sm" disabled={loading} className="gap-1.5 text-xs rounded-lg h-8">
-              <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
-              Refresh
+    <div className="space-y-5">
+      <section className="bg-card rounded-2xl border border-border/50 soft-shadow p-5 sm:p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-semibold">Dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Track your search health and move between key workflows quickly.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="text-xs h-8 rounded-lg" onClick={triggerRefresh} disabled={refreshing}>
+              <RefreshCw className={`w-3.5 h-3.5 mr-1 ${refreshing ? "animate-spin" : ""}`} />
+              Refresh Jobs
+            </Button>
+            <Button asChild size="sm" className="text-xs h-8 rounded-lg">
+              <Link href="/dashboard/jobs">Browse Jobs</Link>
             </Button>
           </div>
-
-          {jobs.length === 0 && !loading ? (
-            <div className="bg-card rounded-2xl soft-shadow border border-dashed border-border/60 flex flex-col items-center justify-center py-14 text-center">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-3">
-                <Briefcase className="w-5 h-5 text-muted-foreground/50" />
-              </div>
-              <p className="font-medium text-muted-foreground">No jobs found yet</p>
-              <p className="text-sm text-muted-foreground/60 mt-0.5">Save your preferences and we&apos;ll find matching jobs</p>
-            </div>
-          ) : (
-            <div className="grid gap-3">
-              {jobs.map((job: Job) => (
-                <JobCard key={job.id} job={job} />
-              ))}
-            </div>
-          )}
         </div>
-      </main>
+      </section>
+
+      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className="bg-card rounded-xl border border-border/50 p-4">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground"><BriefcaseBusiness className="w-3.5 h-3.5" /> Recommended</div>
+          <p className="text-2xl font-semibold mt-2">{jobs.length}</p>
+        </div>
+        <div className="bg-card rounded-xl border border-border/50 p-4">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground"><ClipboardCheck className="w-3.5 h-3.5" /> Applications</div>
+          <p className="text-2xl font-semibold mt-2">{applications.length}</p>
+        </div>
+        <div className="bg-card rounded-xl border border-border/50 p-4">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground"><FileText className="w-3.5 h-3.5" /> Resume</div>
+          <p className="text-2xl font-semibold mt-2">{resumeExists ? "Ready" : "Missing"}</p>
+        </div>
+        <div className="bg-card rounded-xl border border-border/50 p-4">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground"><Settings2 className="w-3.5 h-3.5" /> Profile Health</div>
+          <p className="text-2xl font-semibold mt-2">{profileScore}%</p>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div className="bg-card rounded-2xl border border-border/50 p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold">Top Recommended Jobs</h2>
+            <Link href="/dashboard/jobs" className="text-xs text-primary inline-flex items-center gap-1">
+              View all <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {topJobs.length === 0 && !jobsLoading ? (
+              <p className="text-sm text-muted-foreground">No recommended jobs yet. Save preferences and fetch jobs.</p>
+            ) : (
+              topJobs.map((job) => (
+                <JobCard key={job.id} job={job} applied={isApplied(job.id)} onApply={applyToJob} />
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="bg-card rounded-2xl border border-border/50 p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold">Recent Applications</h2>
+            <Link href="/dashboard/applied" className="text-xs text-primary inline-flex items-center gap-1">
+              View all <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {recentApplications.length === 0 && !applicationsLoading ? (
+              <p className="text-sm text-muted-foreground">Applied jobs will appear here once you apply.</p>
+            ) : (
+              recentApplications.map((application) => (
+                <ApplicationCard key={application.id} application={application} />
+              ))
+            )}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

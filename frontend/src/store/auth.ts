@@ -18,8 +18,9 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
-  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
-  isAuthenticated: !!(typeof window !== 'undefined' && localStorage.getItem('token')),
+  // Keep initial state SSR-safe to avoid hydration mismatches.
+  token: null,
+  isAuthenticated: false,
   login: (token, user) => {
     localStorage.setItem('token', token);
     set({ token, user, isAuthenticated: true });
@@ -29,11 +30,15 @@ export const useAuthStore = create<AuthState>()((set) => ({
     set({ token: null, user: null, isAuthenticated: false });
   },
   checkAuth: async () => {
+    if (typeof window === 'undefined') return;
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+      set({ token: null, user: null, isAuthenticated: false });
+      return;
+    }
     try {
       const res = await api.get('/auth/me');
-      set({ user: res.data, isAuthenticated: true });
+      set({ token, user: res.data, isAuthenticated: true });
     } catch {
       localStorage.removeItem('token');
       set({ token: null, user: null, isAuthenticated: false });

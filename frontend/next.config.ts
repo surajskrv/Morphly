@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
     return [
       {
+        source: '/favicon.ico',
+        destination: '/icon.png',
+      },
+      {
         source: '/api/v1/:path*',
         destination: `${backendUrl}/api/v1/:path*`,
       },
