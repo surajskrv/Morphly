@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: mongo:6
@@ -19,9 +17,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - MONGODB_URL=mongodb://db:27017
-      - REDIS_URL=redis://redis:6379/0
-      - BACKEND_CORS_ORIGINS=["http://localhost:3000","http://frontend:3000"]
+      MONGODB_URL: ${MONGODB_URL:-mongodb://db:27017/morphly}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:3000}
     depends_on:
       - db
       - redis
@@ -30,8 +28,18 @@ services:
     build: backend/
     command: celery -A app.worker.celery_app worker --loglevel=info
     environment:
-      - MONGODB_URL=mongodb://db:27017
-      - REDIS_URL=redis://redis:6379/0
+      MONGODB_URL: ${MONGODB_URL:-mongodb://db:27017/morphly}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+    depends_on:
+      - db
+      - redis
+
+  celery_beat:
+    build: backend/
+    command: celery -A app.worker.celery_app beat --loglevel=info
+    environment:
+      MONGODB_URL: ${MONGODB_URL:-mongodb://db:27017/morphly}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
     depends_on:
       - db
       - redis
@@ -41,8 +49,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://api:8000}
-      - BACKEND_URL=${BACKEND_URL:-http://api:8000}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api/v1}
+      BACKEND_URL: ${BACKEND_URL:-http://api:8000}
     depends_on:
       - api
 

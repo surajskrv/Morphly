@@ -3,6 +3,8 @@ import asyncio
 from app.core.database import init_db
 from app.models.preference import Preference
 from app.models.job import Job
+from app.services.job_collector import JobCollector
+from app.services.job_matcher import JobMatcher
 
 async def async_fetch_jobs(user_id: str):
     await init_db()
@@ -10,26 +12,21 @@ async def async_fetch_jobs(user_id: str):
     if not pref:
         print(f"No preferences found for user {user_id}")
         return
-        
-    # Mocking external API fetch
-    print(f"Fetching jobs for {pref.desired_role} in {pref.location}...")
-    
-    # Delete only this user's previously-fetched mock jobs (not all jobs globally)
-    await Job.find(Job.external_id.startswith(f"job-{user_id}-")).delete()
-    
-    # Store mocked job
-    new_job = Job(
-        external_id=f"job-{user_id}-1",
-        title=f"Senior {pref.desired_role or 'Software Engineer'}",
-        company="Tech Innovators LLC",
-        location=pref.location or "Remote",
-        description="A great place to work.",
-        url="https://example.com/job/1",
-        salary_min=120000,
-        salary_max=160000,
-        relevance_score=0.98
-    )
-    await new_job.insert()
+
+    query = pref.desired_role or "software engineer"
+    location = pref.location or "Remote"
+    print(f"Fetching jobs for {query} in {location}...")
+
+    collector = JobCollector()
+    matcher = JobMatcher(pref)
+
+    jobs = await collector.collect_and_store_jobs(query=query, location=location)
+
+    # Update match score for the requesting user context.
+    for job in jobs:
+        job.match_score = matcher.score_job(job)
+        job.relevance_score = job.match_score
+        await job.save()
 
 @shared_task(name="fetch_jobs_task")
 def fetch_jobs_task(user_id: str):

@@ -204,7 +204,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-sm font-semibold text-muted-foreground mb-5">Built with modern technology</p>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            {["Next.js", "FastAPI", "MongoDB", "Redis", "Celery", "Playwright", "OpenAI"].map((tech) => (
+            {["Next.js", "FastAPI", "MongoDB", "Redis", "Celery", "Playwright", "Gemini"].map((tech) => (
               <span key={tech} className="px-4 py-2 rounded-xl bg-card border border-border/50 text-sm font-medium text-muted-foreground soft-shadow">
                 {tech}
               </span>

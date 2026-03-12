@@ -6,7 +6,7 @@ Morphly is a full-stack platform designed to automate the job search process. It
 
 - **Frontend**: Next.js, React, Tailwind CSS, ShadCN UI, Zustand, Axios
 - **Backend**: FastAPI, Python, Beanie ODM, MongoDB, Redis, Celery
-- **AI/Automation**: OpenAI API (Generation), Playwright (Web Automation)
+- **AI/Automation**: Google Gemini API (Generation), Playwright (Web Automation)
 - **Deployment**: Docker, docker-compose
 
 ## Project Structure
@@ -83,9 +83,14 @@ Morphly/
 | `app/models/*.py` | Beanie `Document` classes defining MongoDB collections (users, jobs, preferences, applications) |
 | `app/schemas/*.py` | Pydantic schemas for strict request validation and response serialization (string IDs for MongoDB) |
 | `app/worker/celery_app.py` | Configures Celery with Redis as broker/backend, registers all task modules |
-| `app/worker/ai.py` | Stub tasks for OpenAI resume and cover letter generation |
+| `app/worker/ai.py` | Celery tasks for Gemini resume and cover-letter generation |
 | `app/worker/jobs.py` | Async task that fetches jobs based on user preferences and stores them in MongoDB |
 | `app/worker/playwright_applier.py` | Async task that simulates the auto-apply process using Playwright |
+| `app/scrapers/*.py` | Modular source scrapers (LinkedIn, Naukri, Internshala, Wellfound, Hirist, Adzuna backup) |
+| `app/services/job_collector.py` | Runs all scrapers, normalizes payloads, deduplicates, and stores jobs |
+| `app/services/job_matcher.py` | Scores jobs for recommendations using preferences |
+| `app/services/gemini_service.py` | Gemini client wrapper (`gemini-1.5-flash`) |
+| `app/tasks/scrape_jobs.py` | Scheduled Celery scraping tasks by source |
 
 ### Frontend (`/frontend`)
 
@@ -120,6 +125,7 @@ All endpoints are prefixed with `/api/v1`.
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/v1/jobs/` | List all fetched jobs |
+| GET | `/api/v1/jobs/recommended` | List jobs sorted by match score |
 | POST | `/api/v1/jobs/fetch` | Trigger background job fetch |
 
 ### Applications
@@ -206,7 +212,7 @@ SECRET_KEY=your-super-secret-key-change-in-production
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 REDIS_URL=redis://localhost:6379/0
-OPENAI_API_KEY=
+GEMINI_API_KEY=
 ADZUNA_APP_ID=
 ADZUNA_API_KEY=
 JSEARCH_API_KEY=

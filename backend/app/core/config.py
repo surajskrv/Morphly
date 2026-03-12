@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]
     
     # External APIs
-    OPENAI_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""
     ADZUNA_APP_ID: str = ""
     ADZUNA_API_KEY: str = ""
     JSEARCH_API_KEY: str = ""

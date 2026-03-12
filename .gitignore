@@ -85,6 +85,7 @@ backend/uploads/
 __pycache__
 *.pyc
 
+dump.rdb
 # ── Docker ──
 .dockerignore
 

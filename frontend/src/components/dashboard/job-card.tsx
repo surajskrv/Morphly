@@ -11,9 +11,11 @@ interface Job {
   title: string;
   company: string;
   location?: string;
-  url: string;
+  url?: string;
+  apply_url?: string;
   salary_min?: number;
   salary_max?: number;
+  match_score?: number;
   relevance_score?: number;
 }
 
@@ -33,9 +35,9 @@ export function JobCard({ job }: { job: Job }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <h3 className="font-semibold truncate">{job.title}</h3>
-            {job.relevance_score != null && (
+            {(job.match_score != null || job.relevance_score != null) && (
               <span className="shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-600 border border-teal-100">
-                {Math.round(job.relevance_score * 100)}%
+                {Math.round((job.match_score ?? job.relevance_score ?? 0) * 100)}%
               </span>
             )}
           </div>
@@ -56,7 +58,7 @@ export function JobCard({ job }: { job: Job }) {
             Apply
           </Button>
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground" asChild>
-            <a href={job.url} target="_blank" rel="noopener noreferrer">
+            <a href={job.apply_url || job.url || "#"} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </Button>

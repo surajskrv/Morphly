@@ -9,7 +9,8 @@ passlib[bcrypt]
 python-multipart
 httpx
 playwright
-openai
+google-genai
+beautifulsoup4
 pytest
 python-dotenv
 motor
