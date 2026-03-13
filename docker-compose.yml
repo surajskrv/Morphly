@@ -1,18 +1,19 @@
 services:
   db:
     image: mongo:6
-    ports:
-      - "27017:27017"
+    restart: always
     volumes:
-      - mongo_data:/data/db
+      - /data/mongo_data:/data/db
 
   redis:
     image: redis:7
-    ports:
-      - "6379:6379"
+    restart: always
 
   api:
-    build: backend/
+    build:
+      context: backend/
+      target: api-dist
+    image: morphly-api
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
@@ -25,7 +26,10 @@ services:
       - redis
 
   celery_worker:
-    build: backend/
+    build:
+      context: backend/
+      target: scraper-dist
+    image: morphly-scraper
     command: celery -A app.worker.celery_app worker --loglevel=info
     environment:
       MONGODB_URL: ${MONGODB_URL:-mongodb://db:27017/morphly}
@@ -35,7 +39,10 @@ services:
       - redis
 
   celery_beat:
-    build: backend/
+    build:
+      context: backend/
+      target: api-dist
+    image: morphly-api # Reuses the lightweight image
     command: celery -A app.worker.celery_app beat --loglevel=info
     environment:
       MONGODB_URL: ${MONGODB_URL:-mongodb://db:27017/morphly}
@@ -46,13 +53,11 @@ services:
 
   frontend:
     build: frontend/
+    image: morphly-frontend
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api/v1}
       BACKEND_URL: ${BACKEND_URL:-http://api:8000}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api/v1}
     depends_on:
       - api
-
-volumes:
-  mongo_data:
