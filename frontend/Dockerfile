@@ -1,36 +1,40 @@
+# -------- Stage 1: Install deps --------
 FROM node:20-alpine AS deps
 WORKDIR /app
-
-# Copy package files
 COPY package.json package-lock.json* ./
+RUN npm ci
 
-# Install dependencies
-RUN npm install --frozen-lockfile
-
-# -------- Stage 2: Build Next.js app --------
+# -------- Stage 2: Build --------
 FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the Next.js app
+ENV NEXT_TELEMETRY_DISABLED=1
+# ❌ Do NOT set BACKEND_URL here — keep it runtime-only
+
 RUN npm run build
 
-# -------- Stage 3: Production image --------
+# -------- Stage 3: Production --------
 FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+# ✅ BACKEND_URL is injected here at container runtime via -e or docker-compose
 
-# Copy necessary files
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/next.config.* ./
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-# Expose Next.js port
+COPY --from=builder /app/public* ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
 EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Start the app
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
