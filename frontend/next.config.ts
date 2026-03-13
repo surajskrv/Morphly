@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  output: 'standalone',
   devIndicators: false,
   async rewrites() {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
