@@ -6,8 +6,8 @@ let defaultBaseURL = '/api/v1'; // Default to relative path for Vercel/proxies
 if (typeof window !== 'undefined') {
   if (window.location.hostname === 'localhost') {
     defaultBaseURL = 'http://localhost:8000/api/v1';
-  } else if (window.location.hostname === '35.238.104.251') {
-    defaultBaseURL = 'http://35.238.104.251:8000/api/v1';
+  } else if (window.location.hostname === '34.122.205.37') {
+    defaultBaseURL = 'http://34.122.205.37:8000/api/v1';
   }
 }
 
