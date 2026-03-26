@@ -10,7 +10,6 @@ celery_app = Celery(
     include=[
         "app.worker.jobs",
         "app.worker.ai",
-        "app.worker.playwright_applier",
         "app.tasks.scrape_jobs",
     ],
 )

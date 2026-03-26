@@ -1,9 +1,11 @@
 "use client";
 
-import { CalendarDays, ExternalLink, Hourglass, Send } from "lucide-react";
+import Link from "next/link";
+import { CalendarDays, ExternalLink, FileCheck2, Layers3, Save, Send } from "lucide-react";
 
-import type { ApplicationRecord } from "@/store/applications";
 import { Button } from "@/components/ui/button";
+import { SectionHeader, StatusBadge, SurfaceCard } from "@/components/ui/product-shell";
+import type { ApplicationRecord } from "@/store/applications";
 
 function formatDate(value?: string): string {
   if (!value) return "Not available";
@@ -16,49 +18,78 @@ function formatDate(value?: string): string {
   });
 }
 
+function getStatusConfig(status: ApplicationRecord["status"]) {
+  if (status === "applied") {
+    return { label: "Applied", tone: "success" as const, icon: Send };
+  }
+
+  if (status === "ready") {
+    return { label: "Ready to apply", tone: "info" as const, icon: FileCheck2 };
+  }
+
+  return { label: "Saved", tone: "attention" as const, icon: Layers3 };
+}
+
 export function ApplicationCard({ application }: { application: ApplicationRecord }) {
-  const status = (application.status || "pending").toLowerCase();
-  const isApplied = status === "applied";
+  const status = getStatusConfig(application.status);
+  const sourceHref = application.job?.apply_url || application.job?.url;
+  const hasResumeDraft = Boolean(application.resume_sections?.length);
+  const hasCoverLetter = Boolean(application.cover_letter_content);
 
   return (
-    <div className="bg-card rounded-xl soft-shadow border border-border/40 p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="font-semibold text-base">{application.job?.title || "Unknown role"}</h3>
-          <p className="text-sm text-muted-foreground">{application.job?.company || "Unknown company"}</p>
-          <p className="text-xs text-muted-foreground/80 mt-1">{application.job?.location || "Location not provided"}</p>
-        </div>
-        <span
-          className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
-            isApplied
-              ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-              : "bg-amber-50 text-amber-700 border-amber-100"
-          }`}
-        >
-          {isApplied ? "Applied" : "In Progress"}
-        </span>
+    <SurfaceCard className="soft-shadow-hover p-5">
+      <SectionHeader
+        title={application.job?.title || "Unknown role"}
+        description={
+          <span>
+            {application.job?.company || "Unknown company"}
+            {application.job?.location ? ` • ${application.job.location}` : ""}
+          </span>
+        }
+        action={<StatusBadge tone={status.tone} icon={status.icon}>{status.label}</StatusBadge>}
+      />
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {hasResumeDraft ? <StatusBadge tone="info" icon={Save}>Resume draft saved</StatusBadge> : null}
+        {hasCoverLetter ? <StatusBadge tone="success" icon={Save}>Cover letter saved</StatusBadge> : null}
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-2 mt-4 text-xs text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <CalendarDays className="w-3.5 h-3.5" />
-          Requested: {formatDate(application.created_at)}
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <div className="surface-subtle rounded-[1.25rem] border border-border/70 px-4 py-3 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 font-medium text-foreground">
+            <CalendarDays className="h-4 w-4 text-primary" />
+            Saved to tracking
+          </div>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">{formatDate(application.created_at)}</p>
         </div>
-        <div className="flex items-center gap-1.5">
-          {isApplied ? <Send className="w-3.5 h-3.5" /> : <Hourglass className="w-3.5 h-3.5" />}
-          Applied: {formatDate(application.applied_at)}
+        <div className="surface-subtle rounded-[1.25rem] border border-border/70 px-4 py-3 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 font-medium text-foreground">
+            <CalendarDays className="h-4 w-4 text-primary" />
+            Last activity
+          </div>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            {formatDate(application.updated_at || application.applied_at)}
+          </p>
         </div>
       </div>
 
-      {application.job?.apply_url || application.job?.url ? (
-        <div className="mt-4">
-          <Button variant="outline" size="sm" className="text-xs h-8 rounded-lg" asChild>
-            <a href={application.job.apply_url || application.job.url} target="_blank" rel="noopener noreferrer">
-              Open Job <ExternalLink className="w-3.5 h-3.5 ml-1" />
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        {sourceHref ? (
+          <Button asChild variant="subtle" className="w-full sm:w-auto">
+            <a href={sourceHref} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-3.5 w-3.5" />
+              Open source listing
             </a>
           </Button>
-        </div>
-      ) : null}
-    </div>
+        ) : null}
+        {application.job?.id ? (
+          <Button asChild variant="ghost" className="w-full sm:w-auto">
+            <Link href={`/dashboard/jobs/${application.job.id}`}>
+              Open workspace
+            </Link>
+          </Button>
+        ) : null}
+      </div>
+    </SurfaceCard>
   );
 }

@@ -2,6 +2,8 @@ import { create } from "zustand";
 
 import api from "@/services/api";
 
+export type ApplicationStatus = "saved" | "ready" | "applied";
+
 export interface ApplicationJobSummary {
   id: string;
   title: string;
@@ -16,10 +18,18 @@ export interface ApplicationRecord {
   id: string;
   job_id: string;
   user_id: string;
-  status?: string;
+  status: ApplicationStatus;
   resume_path?: string;
+  resume_sections?: Array<{
+    id: string;
+    title: string;
+    content: string;
+  }>;
+  resume_grounding?: string[];
   cover_letter_content?: string;
+  cover_letter_grounding?: string[];
   applied_at?: string;
+  updated_at?: string;
   created_at: string;
   job?: ApplicationJobSummary;
 }
@@ -27,16 +37,30 @@ export interface ApplicationRecord {
 interface ApplicationsState {
   applications: ApplicationRecord[];
   loading: boolean;
-  applyingJobIds: string[];
   fetchApplications: () => Promise<void>;
-  applyToJob: (jobId: string) => Promise<ApplicationRecord | null>;
-  isApplied: (jobId: string) => boolean;
+  saveApplication: (payload: {
+    job_id: string;
+    status?: ApplicationStatus;
+    resume_sections?: Array<{
+      id: string;
+      title: string;
+      content: string;
+    }>;
+    resume_grounding?: string[];
+    cover_letter_content?: string;
+    cover_letter_grounding?: string[];
+  }) => Promise<ApplicationRecord | null>;
+  updateStatus: (applicationId: string, status: ApplicationStatus) => Promise<ApplicationRecord | null>;
+  updateApplication: (
+    applicationId: string,
+    payload: Partial<Pick<ApplicationRecord, "status" | "resume_path" | "resume_sections" | "resume_grounding" | "cover_letter_content" | "cover_letter_grounding">>
+  ) => Promise<ApplicationRecord | null>;
+  getByJobId: (jobId: string) => ApplicationRecord | undefined;
 }
 
 export const useApplicationsStore = create<ApplicationsState>()((set, get) => ({
   applications: [],
   loading: false,
-  applyingJobIds: [],
 
   fetchApplications: async () => {
     set({ loading: true });
@@ -48,29 +72,52 @@ export const useApplicationsStore = create<ApplicationsState>()((set, get) => ({
     }
   },
 
-  applyToJob: async (jobId: string) => {
-    if (get().applyingJobIds.includes(jobId)) return null;
-
-    set((state) => ({ applyingJobIds: [...state.applyingJobIds, jobId] }));
-
+  saveApplication: async ({
+    job_id,
+    status = "saved",
+    resume_sections,
+    resume_grounding,
+    cover_letter_content,
+    cover_letter_grounding,
+  }) => {
     try {
-      const res = await api.post("/applications/", { job_id: jobId });
-      const payload = res.data as ApplicationRecord;
-
-      set((state) => {
-        const exists = state.applications.some((item) => item.job_id === payload.job_id);
-        return {
-          applications: exists ? state.applications : [payload, ...state.applications],
-        };
+      const res = await api.post("/applications/", {
+        job_id,
+        status,
+        resume_sections,
+        resume_grounding,
+        cover_letter_content,
+        cover_letter_grounding,
       });
-
-      return payload;
-    } finally {
+      const payload = res.data as ApplicationRecord;
       set((state) => ({
-        applyingJobIds: state.applyingJobIds.filter((id) => id !== jobId),
+        applications: [
+          payload,
+          ...state.applications.filter((item) => item.id !== payload.id),
+        ],
       }));
+      return payload;
+    } catch {
+      return null;
     }
   },
 
-  isApplied: (jobId: string) => get().applications.some((item) => item.job_id === jobId),
+  updateStatus: async (applicationId, status) => {
+    return get().updateApplication(applicationId, { status });
+  },
+
+  updateApplication: async (applicationId, payload) => {
+    try {
+      const res = await api.patch(`/applications/${applicationId}`, payload);
+      const updated = res.data as ApplicationRecord;
+      set((state) => ({
+        applications: state.applications.map((item) => (item.id === updated.id ? updated : item)),
+      }));
+      return updated;
+    } catch {
+      return null;
+    }
+  },
+
+  getByJobId: (jobId) => get().applications.find((item) => item.job_id === jobId),
 }));

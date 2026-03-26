@@ -1,14 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import api from "@/services/api";
-import { getErrorMessage } from "@/lib/error-utils";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Sparkles, UserPlus, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, CheckCircle2, Eye, EyeOff, Sparkles, UserPlus } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { SectionEyebrow, SurfaceCard } from "@/components/ui/product-shell";
+import { getErrorMessage } from "@/lib/error-utils";
+import api from "@/services/api";
+
+const registerBenefits = [
+  "Resume-driven onboarding instead of long setup forms",
+  "Matched jobs, tailored drafts, and tracking in one workspace",
+  "A workflow designed around clarity instead of blind automation",
+];
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -27,6 +35,7 @@ export default function RegisterPage() {
       toast.error("Passwords do not match");
       return;
     }
+
     if (password.length < 6) {
       toast.error("Password must be at least 6 characters");
       return;
@@ -35,7 +44,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await api.post("/auth/register", { email, full_name: fullName, password });
-      toast.success("Account created! Please sign in.");
+      toast.success("Account created. Please sign in.");
       router.push("/login");
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -45,76 +54,116 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-section-sage">
-      <div className="w-full max-w-md">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back to home
-        </Link>
+    <div className="auth-shell min-h-screen px-4 py-6 sm:px-6 sm:py-10">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-8">
+        <div className="flex-1 space-y-6 lg:space-y-8 lg:py-10">
+          <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" />
+            Back to home
+          </Link>
 
-        <div className="bg-card rounded-2xl soft-shadow border border-border/40 p-8 space-y-6">
-          <div className="flex flex-col items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 mb-1">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-primary" />
+          <div className="space-y-4">
+            <SectionEyebrow icon={Sparkles} label="Start your Morphly workspace" />
+            <div className="space-y-3">
+              <h1 className="max-w-xl text-balance text-[2rem] font-semibold tracking-tight sm:text-5xl">
+                Create an account and move into a more organized search.
+              </h1>
+              <p className="max-w-xl text-base leading-8 text-muted-foreground">
+                Sign up to upload your base resume, confirm your profile, and start preparing stronger applications with less repetitive work.
+              </p>
+            </div>
+          </div>
+
+          <SurfaceCard className="max-w-xl">
+            <div className="space-y-4">
+              <p className="text-sm font-semibold tracking-tight text-foreground">What you unlock</p>
+              <div className="space-y-3">
+                {registerBenefits.map((item) => (
+                  <div key={item} className="flex items-start gap-3 rounded-[1.25rem] border border-border/70 bg-background/82 px-4 py-3">
+                    <CheckCircle2 className="mt-0.5 h-4.5 w-4.5 shrink-0 text-primary" />
+                    <p className="text-sm leading-6 text-muted-foreground">{item}</p>
+                  </div>
+                ))}
               </div>
-            </Link>
-            <h1 className="font-semibold text-xl">Create an account</h1>
-            <p className="text-muted-foreground text-sm">Get started with Morphly for free</p>
+            </div>
+          </SurfaceCard>
+        </div>
+
+        <SurfaceCard className="w-full lg:max-w-md lg:self-center">
+          <div className="mb-6 space-y-2">
+            <div className="flex h-11 w-11 items-center justify-center rounded-[1.25rem] border border-primary/10 bg-primary/10 text-primary">
+              <UserPlus className="h-5 w-5" />
+            </div>
+            <h2 className="text-2xl font-semibold tracking-tight">Create account</h2>
+            <p className="text-sm leading-6 text-muted-foreground">
+              Start free and build a calmer workflow for job discovery, drafting, and tracking.
+            </p>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Full Name</label>
-              <Input placeholder="John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="h-11 rounded-lg" />
+              <label className="text-sm font-medium">Full name</label>
+              <Input placeholder="John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Email</label>
-              <Input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-11 rounded-lg" />
+              <Input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Password</label>
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="At least 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-11 rounded-lg pr-11"
+                  className="pr-12"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
-                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                 </button>
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Confirm Password</label>
+              <label className="text-sm font-medium">Confirm password</label>
               <div className="relative">
                 <Input
                   type={showConfirm ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="Repeat your password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="h-11 rounded-lg pr-11"
+                  className="pr-12"
                 />
-                <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
-                  {showConfirm ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                  aria-label={showConfirm ? "Hide password" : "Show password"}
+                >
+                  {showConfirm ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                 </button>
               </div>
             </div>
 
-            <Button type="submit" className="w-full h-11 rounded-lg gap-2" disabled={loading}>
-              <UserPlus className="w-4 h-4" />
-              {loading ? "Creating account..." : "Create Account"}
+            <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              {loading ? "Creating account..." : "Create free account"}
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="mt-5 text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/login" className="text-primary hover:underline font-medium">Sign in</Link>
+            <Link href="/login" className="font-medium text-primary hover:underline">
+              Sign in
+            </Link>
           </p>
-        </div>
+        </SurfaceCard>
       </div>
     </div>
   );

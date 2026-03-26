@@ -47,57 +47,34 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/*
- * Color psychology rationale:
- * ─────────────────────────────────────────────────────────
- * Background: Warm cream (not white) — reduces eye strain, feels inviting
- * Foreground: Dark slate (not black) — softer contrast, less fatiguing
- * Primary: Soft teal (#3B9B8F) — trust, calm, professionalism
- * Cards: Pure warm white — slight lift over cream background
- * Muted-fg: Warm gray — easy to read without demanding attention
- * Accent: Soft lavender — creativity, subtle distinction
- * Destructive: Muted coral — alert without aggression
- * Borders: Warm tan — visible but gentle
- */
-
 :root {
   --font-sans: "Avenir Next", "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-  /* Warm cream base — no harsh white anywhere */
-  --background: oklch(0.97 0.008 85);
-  /* Dark slate text — easier on eyes than pure black */
+  --background: oklch(0.972 0.008 85);
   --foreground: oklch(0.28 0.015 250);
 
-  /* Cards: slightly warmer white, lifts off cream background */
-  --card: oklch(0.995 0.003 90);
+  --card: oklch(0.992 0.004 88);
   --card-foreground: oklch(0.28 0.015 250);
 
   --popover: oklch(0.995 0.003 90);
   --popover-foreground: oklch(0.28 0.015 250);
 
-  /* Teal primary — trust, calm, professional growth */
   --primary: oklch(0.55 0.12 175);
   --primary-foreground: oklch(0.99 0 0);
 
-  /* Warm light sand for secondary surfaces */
   --secondary: oklch(0.94 0.01 85);
   --secondary-foreground: oklch(0.32 0.015 250);
 
-  /* Muted: soft warm gray */
-  --muted: oklch(0.94 0.008 85);
+  --muted: oklch(0.942 0.008 86);
   --muted-foreground: oklch(0.48 0.01 250);
 
-  /* Accent: soft sage green — harmony, balance */
-  --accent: oklch(0.93 0.02 155);
+  --accent: oklch(0.934 0.02 155);
   --accent-foreground: oklch(0.3 0.02 250);
 
-  /* Muted coral — warm alert, not aggressive */
   --destructive: oklch(0.6 0.17 25);
-
-  /* Borders: warm tan, visible but gentle */
-  --border: oklch(0.9 0.01 80);
-  --input: oklch(0.92 0.008 85);
+  --border: oklch(0.892 0.012 82);
+  --input: oklch(0.948 0.006 86);
   --ring: oklch(0.55 0.12 175);
 
   --chart-1: oklch(0.6 0.12 175);
@@ -106,7 +83,7 @@
   --chart-4: oklch(0.65 0.12 40);
   --chart-5: oklch(0.6 0.1 330);
 
-  --radius: 0.75rem;
+  --radius: 0.9rem;
 
   --sidebar: oklch(0.96 0.008 85);
   --sidebar-foreground: oklch(0.28 0.015 250);
@@ -156,31 +133,184 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+
   html {
     @apply font-sans scroll-smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at top left, oklch(0.96 0.03 175 / 28%), transparent 32%),
+      radial-gradient(circle at top right, oklch(0.97 0.02 55 / 18%), transparent 28%),
+      linear-gradient(180deg, oklch(0.985 0.006 88), oklch(0.968 0.008 85));
+  }
+
+  ::selection {
+    background: oklch(0.55 0.12 175 / 20%);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  a,
+  button,
+  input,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
 @layer utilities {
-  /* Soft warm shadow — no harsh black drops */
   .soft-shadow {
-    box-shadow: 0 1px 3px oklch(0.4 0.01 80 / 5%), 0 4px 14px oklch(0.4 0.01 80 / 4%);
+    box-shadow:
+      0 1px 2px oklch(0.35 0.01 80 / 4%),
+      0 10px 32px oklch(0.35 0.01 80 / 5%);
   }
+
   .soft-shadow-hover {
-    transition: box-shadow 0.25s ease, transform 0.2s ease;
+    transition: box-shadow 0.28s ease, transform 0.24s ease, border-color 0.24s ease;
   }
+
   .soft-shadow-hover:hover {
-    box-shadow: 0 2px 8px oklch(0.55 0.12 175 / 8%), 0 8px 28px oklch(0.4 0.01 80 / 6%);
+    box-shadow:
+      0 2px 8px oklch(0.55 0.12 175 / 10%),
+      0 16px 40px oklch(0.35 0.01 80 / 7%);
     transform: translateY(-1px);
   }
 
-  /* Section backgrounds — alternating warm tones */
+  .surface-card {
+    box-shadow:
+      0 1px 2px oklch(0.35 0.01 80 / 4%),
+      0 18px 42px oklch(0.35 0.01 80 / 6%);
+    backdrop-filter: blur(20px);
+  }
+
+  .surface-subtle {
+    background-image:
+      linear-gradient(180deg, oklch(1 0 0 / 88%), oklch(0.994 0.004 90 / 96%)),
+      radial-gradient(circle at top right, oklch(0.97 0.03 175 / 18%), transparent 45%);
+  }
+
+  .surface-panel {
+    background-image:
+      linear-gradient(135deg, oklch(0.992 0.004 88), oklch(0.965 0.02 175 / 58%));
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 45%),
+      0 18px 42px oklch(0.35 0.01 80 / 7%);
+  }
+
+  .surface-grid {
+    background-image:
+      linear-gradient(to right, oklch(0.88 0.01 80 / 36%) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.88 0.01 80 / 36%) 1px, transparent 1px),
+      linear-gradient(135deg, oklch(0.992 0.004 88), oklch(0.965 0.02 175 / 58%));
+    background-size: 26px 26px, 26px 26px, 100% 100%;
+  }
+
+  .card-wash {
+    background-image:
+      radial-gradient(circle at top right, oklch(0.96 0.03 175 / 65%), transparent 40%),
+      linear-gradient(180deg, oklch(1 0 0 / 78%), oklch(1 0 0 / 92%));
+  }
+
+  .subtle-grid {
+    background-image:
+      linear-gradient(to right, oklch(0.88 0.01 80 / 40%) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.88 0.01 80 / 40%) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  .panel-gradient {
+    background-image: linear-gradient(135deg, oklch(0.98 0.01 85), oklch(0.95 0.02 175 / 55%));
+  }
+
+  .tab-bar-shell {
+    background-image:
+      linear-gradient(180deg, oklch(1 0 0 / 94%), oklch(0.992 0.006 85 / 92%)),
+      radial-gradient(circle at top, oklch(0.97 0.03 175 / 28%), transparent 55%);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 45%),
+      0 12px 30px oklch(0.35 0.01 80 / 7%);
+  }
+
+  .tab-pill-glow {
+    box-shadow:
+      0 12px 28px oklch(0.55 0.12 175 / 22%),
+      inset 0 1px 0 oklch(1 0 0 / 32%),
+      inset 0 -1px 0 oklch(0.45 0.08 175 / 16%);
+  }
+
+  .auth-shell {
+    background-image:
+      radial-gradient(circle at top left, oklch(0.95 0.03 175 / 28%), transparent 32%),
+      radial-gradient(circle at bottom right, oklch(0.96 0.02 55 / 18%), transparent 30%),
+      linear-gradient(180deg, oklch(0.985 0.006 88), oklch(0.968 0.008 85));
+  }
+
+  .marketing-hero {
+    background-image:
+      radial-gradient(circle at 10% 10%, oklch(0.95 0.035 175 / 34%), transparent 26%),
+      radial-gradient(circle at 90% 12%, oklch(0.96 0.02 50 / 20%), transparent 22%),
+      radial-gradient(circle at 58% 78%, oklch(0.96 0.02 155 / 26%), transparent 24%),
+      linear-gradient(180deg, oklch(0.985 0.006 88), oklch(0.968 0.008 85));
+  }
+
+  .dashed-dropzone {
+    border: 1.5px dashed oklch(0.8 0.03 175 / 75%);
+    background: linear-gradient(180deg, oklch(0.99 0.01 85), oklch(0.97 0.01 175 / 35%));
+  }
+
+  .content-fade-in {
+    animation: content-fade-in 420ms ease-out both;
+  }
+
+  .shimmer-placeholder {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-placeholder::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, oklch(1 0 0 / 35%), transparent);
+    animation: shimmer 1.8s infinite;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes content-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .bg-section-cream { background-color: oklch(0.97 0.008 85); }
   .bg-section-sage { background-color: oklch(0.96 0.015 155); }
   .bg-section-lavender { background-color: oklch(0.96 0.015 280); }
   .bg-section-peach { background-color: oklch(0.96 0.015 60); }
   .bg-section-sky { background-color: oklch(0.96 0.015 220); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

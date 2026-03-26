@@ -1,249 +1,265 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Navbar } from "@/components/layout/navbar";
 import {
   ArrowRight,
-  Briefcase,
-  FileText,
-  Zap,
-  Search,
-  Send,
-  Shield,
-  Clock,
-  TrendingUp,
+  BriefcaseBusiness,
   CheckCircle2,
-  Star,
-  Users,
+  FileSearch,
+  FileText,
+  LayoutPanelTop,
+  ShieldCheck,
+  Sparkles,
   Target,
+  WandSparkles,
 } from "lucide-react";
 
-const features = [
+import { Navbar } from "@/components/layout/navbar";
+import { Button } from "@/components/ui/button";
+import {
+  ActionPanel,
+  PageHeader,
+  SectionEyebrow,
+  SectionHeader,
+  StatusBadge,
+  SurfaceCard,
+} from "@/components/ui/product-shell";
+
+const featureCards = [
   {
-    icon: Search,
-    title: "Smart Discovery",
-    desc: "AI crawls job boards and ranks listings that match your unique skills, experience, and career goals.",
-    iconBg: "bg-sky-50",
-    iconColor: "text-sky-600",
+    icon: FileSearch,
+    title: "All your strong-fit jobs in one place",
+    description:
+      "Pull relevant roles into one workspace, then sort through them with clearer signals instead of opening ten different job boards.",
   },
   {
-    icon: FileText,
-    title: "Auto Resume",
-    desc: "Generates a tailored resume for every application — highlighting the skills each employer wants to see.",
-    iconBg: "bg-violet-50",
-    iconColor: "text-violet-600",
+    icon: WandSparkles,
+    title: "Grounded resume and cover-letter drafts",
+    description:
+      "Morphly tailors each draft from your base resume and the target job, so the output stays useful without inventing experience.",
   },
   {
-    icon: Send,
-    title: "One-Click Apply",
-    desc: "Playwright-powered automation fills out forms and submits applications on your behalf. Hands-free.",
-    iconBg: "bg-rose-50",
-    iconColor: "text-rose-500",
-  },
-  {
-    icon: TrendingUp,
-    title: "Match Scoring",
-    desc: "Every job gets a relevance score so you can focus your energy on the opportunities that matter most.",
-    iconBg: "bg-teal-50",
-    iconColor: "text-teal-600",
-  },
-  {
-    icon: Shield,
-    title: "Secure & Private",
-    desc: "JWT authentication, bcrypt-hashed passwords, and zero third-party data sharing. Your data is yours.",
-    iconBg: "bg-amber-50",
-    iconColor: "text-amber-600",
-  },
-  {
-    icon: Clock,
-    title: "Save Hours Weekly",
-    desc: "What used to take 10+ hours of copy-pasting now happens automatically in the background.",
-    iconBg: "bg-indigo-50",
-    iconColor: "text-indigo-500",
+    icon: LayoutPanelTop,
+    title: "A calmer application workflow",
+    description:
+      "Review your profile, prepare documents, and apply on the original source with better context and less tab chaos.",
   },
 ];
 
-const steps = [
-  { num: "1", title: "Set your preferences", desc: "Choose your desired role, location, salary range, and skills. Takes 30 seconds.", bg: "bg-sky-50", color: "text-sky-700", border: "border-sky-100" },
-  { num: "2", title: "Upload your resume", desc: "Add your base resume. Our AI will customize it for every single application.", bg: "bg-violet-50", color: "text-violet-700", border: "border-violet-100" },
-  { num: "3", title: "Relax & interview", desc: "Morphly finds matching jobs, generates resumes, and applies — you just show up.", bg: "bg-teal-50", color: "text-teal-700", border: "border-teal-100" },
+const workflow = [
+  {
+    step: "01",
+    title: "Upload your base resume",
+    description:
+      "Start once with the resume you already trust. Morphly extracts the basics and gives you a cleaner starting profile.",
+  },
+  {
+    step: "02",
+    title: "Review your profile and preferences",
+    description:
+      "Edit anything that feels off, add preferences like location or salary, and make your manual choices the source of truth.",
+  },
+  {
+    step: "03",
+    title: "Prepare stronger applications faster",
+    description:
+      "Open a matched role, generate tailored drafts, refine them in-app, and apply on the original listing when you are ready.",
+  },
 ];
 
-const stats = [
-  { icon: Target, value: "95%", label: "Match Accuracy" },
-  { icon: Clock, value: "10x", label: "Faster Applications" },
-  { icon: Users, value: "500+", label: "Jobs Searched Daily" },
-  { icon: Star, value: "4.9", label: "User Satisfaction" },
+const principles = [
+  "Tech-role focused matching and document prep",
+  "Human review before submission, always",
+  "No fake automation promises or mystery workflows",
+  "Designed for clarity on desktop and mobile",
 ];
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen text-foreground">
       <Navbar />
 
-      {/* ── Hero ── warm cream with soft gradient blobs */}
-      <section className="relative overflow-hidden bg-section-cream">
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[60%] rounded-full bg-teal-100/30 blur-3xl" />
-          <div className="absolute top-[-10%] right-[-10%] w-[45%] h-[55%] rounded-full bg-violet-100/25 blur-3xl" />
-          <div className="absolute bottom-[-20%] left-[30%] w-[40%] h-[50%] rounded-full bg-amber-100/20 blur-3xl" />
-        </div>
-
-        <div className="flex flex-col items-center text-center px-6 pt-20 sm:pt-28 pb-20">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8 border border-primary/15">
-            <Zap className="w-3.5 h-3.5" />
-            AI-Powered Job Automation
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight max-w-3xl leading-[1.1]">
-            Your next job,{" "}
-            <span className="text-primary">found and applied</span>
-            {" "}automatically
-          </h1>
-
-          <p className="mt-5 text-muted-foreground max-w-lg text-base sm:text-lg leading-relaxed">
-            Set your preferences, upload your resume, and let Morphly handle the entire application process — from discovery to submission.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center gap-3 mt-8">
-            <Link href="/register">
-              <Button size="lg" className="gap-2 px-7 h-12 rounded-xl text-base">
-                Get Started Free <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button size="lg" variant="outline" className="px-7 h-12 rounded-xl text-base bg-card/80">
-                Sign In
-              </Button>
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-2 mt-8 text-sm text-muted-foreground">
-            <CheckCircle2 className="w-4 h-4 text-teal-500" />
-            <span>Free forever</span>
-            <span className="text-border">·</span>
-            <CheckCircle2 className="w-4 h-4 text-teal-500" />
-            <span>No credit card</span>
-            <span className="text-border hidden sm:inline">·</span>
-            <span className="hidden sm:flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-teal-500" />
-              60-second setup
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Stats ── soft sage background */}
-      <section className="px-6 py-12 bg-section-sage border-y border-border/50">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6">
-          {stats.map((s) => (
-            <div key={s.label} className="flex flex-col items-center text-center">
-              <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center mb-2">
-                <s.icon className="w-5 h-5 text-teal-600" />
-              </div>
-              <p className="text-2xl sm:text-3xl font-bold">{s.value}</p>
-              <p className="text-sm text-muted-foreground mt-0.5">{s.label}</p>
+      <section className="marketing-hero border-b border-border/60 px-4 py-12 sm:px-6 sm:py-18">
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
+          <div className="space-y-7">
+            <SectionEyebrow icon={Sparkles} label="Calmer job discovery and application prep" />
+            <div className="space-y-4">
+              <h1 className="max-w-4xl text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
+                Find better-fit jobs and prepare better applications without the usual mess.
+              </h1>
+              <p className="max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
+                Morphly brings matching jobs into one workspace, reads your base resume, and helps you generate grounded resume and cover-letter drafts before you apply on the original site.
+              </p>
             </div>
-          ))}
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link href="/register" className="sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Start your workspace
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/login" className="sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                  Sign in
+                </Button>
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <StatusBadge icon={ShieldCheck}>Grounded by your resume</StatusBadge>
+              <StatusBadge tone="info" icon={Target}>Manual review stays in control</StatusBadge>
+              <StatusBadge tone="success" icon={BriefcaseBusiness}>Built for tech-role workflows</StatusBadge>
+            </div>
+          </div>
+
+          <SurfaceCard className="relative overflow-hidden p-0">
+            <div className="border-b border-border/70 px-5 py-4 sm:px-6">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold tracking-tight">Morphly Workspace</p>
+                  <p className="text-sm text-muted-foreground">A clearer path from discovery to apply.</p>
+                </div>
+                <StatusBadge tone="info">Live workflow</StatusBadge>
+              </div>
+            </div>
+
+            <div className="grid gap-4 p-5 sm:p-6">
+              <div className="surface-subtle rounded-[1.5rem] border border-border/70 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Profile readiness</p>
+                    <p className="mt-2 text-3xl font-semibold tracking-tight">Step-by-step</p>
+                  </div>
+                  <div className="rounded-2xl border border-primary/10 bg-primary/10 px-3 py-2 text-sm font-medium text-primary">
+                    Resume first
+                  </div>
+                </div>
+                <div className="mt-4 space-y-3 text-sm">
+                  {[
+                    "Upload a base resume",
+                    "Review extracted profile",
+                    "Generate a tailored draft",
+                  ].map((item, index) => (
+                    <div key={item} className="flex items-center gap-3 rounded-2xl border border-border/70 bg-background/86 px-3 py-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-2xl border border-primary/10 bg-primary/10 text-sm font-semibold text-primary">
+                        {index + 1}
+                      </div>
+                      <span className="text-muted-foreground">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <ActionPanel
+                  title="Matched role"
+                  description="Surface why a job fits before you spend time tailoring for it."
+                  actions={<StatusBadge tone="success">Fit reasons included</StatusBadge>}
+                />
+                <ActionPanel
+                  title="Tailored draft"
+                  description="Edit resume sections and cover letters in one workspace before applying externally."
+                  actions={<StatusBadge tone="info">Editable in app</StatusBadge>}
+                />
+              </div>
+            </div>
+          </SurfaceCard>
         </div>
       </section>
 
-      {/* ── Features ── warm cream background */}
-      <section className="px-6 py-20 bg-section-cream">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-sm font-semibold text-primary mb-2">Features</p>
-            <h2 className="text-2xl sm:text-3xl font-bold">Everything you need to land a job</h2>
-            <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-              One platform that handles your entire application pipeline.
+      <section className="px-4 py-16 sm:px-6">
+        <div className="mx-auto max-w-7xl space-y-8">
+          <SectionHeader
+            title="What Morphly is actually good at"
+            description="Not a vague auto-apply bot. A focused workflow for discovery, tailoring, and decision-making."
+          />
+          <div className="grid gap-4 lg:grid-cols-3">
+            {featureCards.map((feature) => (
+              <SurfaceCard key={feature.title} className="soft-shadow-hover">
+                <div className="flex h-11 w-11 items-center justify-center rounded-[1.25rem] border border-primary/10 bg-primary/10 text-primary">
+                  <feature.icon className="h-5 w-5" />
+                </div>
+                <div className="mt-5 space-y-2">
+                  <h3 className="text-lg font-semibold tracking-tight">{feature.title}</h3>
+                  <p className="text-sm leading-7 text-muted-foreground">{feature.description}</p>
+                </div>
+              </SurfaceCard>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-border/60 bg-card/55 px-4 py-16 sm:px-6">
+        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
+          <div className="space-y-4">
+            <SectionEyebrow label="How it flows" />
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+              One base resume. One guided workflow. Less second-guessing.
+            </h2>
+            <p className="text-sm leading-7 text-muted-foreground sm:text-base">
+              The product is designed to reduce scattered effort. Each step gives the next one better context, so users can move from setup to strong applications without losing the thread.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {features.map((f) => (
-              <div key={f.title} className="p-5 rounded-2xl bg-card soft-shadow soft-shadow-hover border border-border/50">
-                <div className={`w-10 h-10 rounded-xl ${f.iconBg} flex items-center justify-center mb-4`}>
-                  <f.icon className={`w-5 h-5 ${f.iconColor}`} />
+          <div className="grid gap-4">
+            {workflow.map((item) => (
+              <SurfaceCard key={item.step} className="soft-shadow-hover">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1.35rem] border border-primary/10 bg-primary/10 text-sm font-semibold text-primary">
+                    {item.step}
+                  </div>
+                  <div className="space-y-1.5">
+                    <h3 className="text-lg font-semibold tracking-tight">{item.title}</h3>
+                    <p className="text-sm leading-7 text-muted-foreground">{item.description}</p>
+                  </div>
                 </div>
-                <h3 className="font-semibold text-base mb-1.5">{f.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-              </div>
+              </SurfaceCard>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── How It Works ── soft lavender background */}
-      <section className="px-6 py-20 bg-section-lavender">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-sm font-semibold text-primary mb-2">How It Works</p>
-            <h2 className="text-2xl sm:text-3xl font-bold">Three steps. That&apos;s it.</h2>
-            <p className="text-muted-foreground mt-2">No complicated setup. No learning curve. Just results.</p>
-          </div>
-
-          <div className="space-y-4">
-            {steps.map((s) => (
-              <div key={s.num} className="flex items-start gap-5 p-5 rounded-2xl bg-card soft-shadow border border-border/50">
-                <div className={`w-11 h-11 rounded-xl ${s.bg} ${s.color} ${s.border} flex items-center justify-center font-bold text-base shrink-0 border`}>
-                  {s.num}
+      <section className="px-4 py-16 sm:px-6">
+        <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+          <SurfaceCard>
+            <SectionHeader
+              title="What the experience is designed to protect"
+              description="The goal is speed without sacrificing trust or clarity."
+            />
+            <div className="mt-5 space-y-3">
+              {principles.map((item) => (
+                <div key={item} className="flex items-start gap-3 rounded-[1.25rem] border border-border/70 bg-background/82 px-4 py-3">
+                  <CheckCircle2 className="mt-0.5 h-4.5 w-4.5 shrink-0 text-primary" />
+                  <p className="text-sm leading-6 text-muted-foreground">{item}</p>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-base">{s.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{s.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Tech Stack ── peach tint */}
-      <section className="px-6 py-14 bg-section-peach border-t border-border/50">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm font-semibold text-muted-foreground mb-5">Built with modern technology</p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {["Next.js", "FastAPI", "MongoDB", "Redis", "Celery", "Playwright", "Gemini"].map((tech) => (
-              <span key={tech} className="px-4 py-2 rounded-xl bg-card border border-border/50 text-sm font-medium text-muted-foreground soft-shadow">
-                {tech}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA ── sky tint */}
-      <section className="px-6 py-20 bg-section-sky">
-        <div className="relative max-w-xl mx-auto text-center bg-card rounded-3xl p-10 soft-shadow border border-border/50 overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 via-violet-400 to-rose-400" />
-          <Briefcase className="w-8 h-8 text-primary mx-auto mb-4" />
-          <h2 className="text-xl sm:text-2xl font-bold mb-2">Ready to automate your job search?</h2>
-          <p className="text-muted-foreground mb-6">
-            Create your free account and start receiving matched jobs in minutes.
-          </p>
-          <Link href="/register">
-            <Button size="lg" className="gap-2 px-8 h-12 rounded-xl text-base">
-              Create Free Account <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* ── Footer ── */}
-      <footer className="border-t border-border/50 py-8 px-6 bg-section-cream">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 font-semibold">
-            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Zap className="w-3.5 h-3.5 text-primary" />
+              ))}
             </div>
-            Morphly
-          </div>
-          <p className="text-sm text-muted-foreground">
-            © 2026 Morphly · Built with ❤️
-          </p>
+          </SurfaceCard>
+
+          <PageHeader
+            className="h-full"
+            eyebrow={<SectionEyebrow icon={FileText} label="Ready when you are" />}
+            title="Build stronger applications with less friction."
+            description="Create your free account, upload your base resume, and move into a calmer application-prep workflow that keeps you in control of the final apply step."
+            actions={
+              <>
+                <Link href="/register">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    Create free account
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                    Continue working
+                  </Button>
+                </Link>
+              </>
+            }
+          />
         </div>
-      </footer>
+      </section>
     </div>
   );
 }

@@ -23,6 +23,7 @@ class JobBase(BaseModel):
     # Backward-compatible aliases for older frontend clients.
     url: Optional[str] = None
     external_id: Optional[str] = None
+    match_reasons: list[str] = Field(default_factory=list)
 
 class JobCreate(JobBase):
     pass
@@ -32,3 +33,10 @@ class JobResponse(JobBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class JobFetchStatusResponse(BaseModel):
+    in_progress: bool = False
+    last_requested_at: Optional[datetime] = None
+    last_completed_at: Optional[datetime] = None
+    last_error: Optional[str] = None

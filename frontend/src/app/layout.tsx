@@ -1,17 +1,18 @@
-import type { Metadata } from 'next'
-import { Toaster } from 'sonner'
-import './globals.css'
+import type { Metadata } from "next";
+import { Toaster } from "sonner";
+
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'Morphly — AI Job Application Automation',
-  description: 'Find jobs, generate resumes, and auto-apply with AI.',
-}
+  title: "Morphly — Job Discovery and Tailored Application Prep",
+  description: "Find strong-fit jobs, tailor your resume and cover letter, and apply faster on the original source.",
+};
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body className="bg-background text-foreground antialiased">
@@ -21,12 +22,13 @@ export default function RootLayout({
           richColors
           toastOptions={{
             style: {
-              borderRadius: '0.75rem',
-              fontSize: '0.875rem',
+              borderRadius: "1rem",
+              fontSize: "0.875rem",
+              boxShadow: "0 18px 42px rgba(72, 71, 63, 0.12)",
             },
           }}
         />
       </body>
     </html>
-  )
+  );
 }

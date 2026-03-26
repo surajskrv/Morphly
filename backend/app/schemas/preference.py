@@ -1,14 +1,12 @@
-from pydantic import BaseModel, ConfigDict, Field
-from typing import List, Optional
+from typing import Optional
 
-class PreferenceBase(BaseModel):
-    desired_role: Optional[str] = None
-    skills: List[str] = Field(default_factory=list)
-    experience_level: Optional[str] = None
-    location: Optional[str] = None
-    remote_only: bool = False
-    salary_min: Optional[float] = None
-    preferred_companies: List[str] = Field(default_factory=list)
+from pydantic import ConfigDict, Field
+
+from app.schemas.profile import UserPreferencesSchema
+
+
+class PreferenceBase(UserPreferencesSchema):
+    pass
 
 class PreferenceCreate(PreferenceBase):
     pass
@@ -16,5 +14,8 @@ class PreferenceCreate(PreferenceBase):
 class PreferenceResponse(PreferenceBase):
     id: str | None = None
     user_id: str
+    summary: Optional[str] = None
+    past_companies: list[str] = Field(default_factory=list)
+    education: list[str] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)

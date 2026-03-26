@@ -16,3 +16,4 @@ python-dotenv
 motor
 beanie
 PyJWT
+pypdf
