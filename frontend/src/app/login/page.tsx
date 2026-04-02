@@ -31,15 +31,32 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
+      // Client-side validation
+      if (!username.trim()) {
+        toast.error("Email is required.");
+        setLoading(false);
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) {
+        toast.error("Please enter a valid email address.");
+        setLoading(false);
+        return;
+      }
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters.");
+        setLoading(false);
+        return;
+      }
+
       const formData = new URLSearchParams();
       formData.append("username", username);
       formData.append("password", password);
       const res = await api.post("/auth/login", formData);
-      const { access_token } = res.data;
+      const { access_token, refresh_token } = res.data;
       const userRes = await api.get("/auth/me", {
         headers: { Authorization: `Bearer ${access_token}` },
       });
-      login(access_token, userRes.data);
+      login(access_token, userRes.data, refresh_token);
       toast.success("Welcome back.");
       router.push("/dashboard");
     } catch (err) {
@@ -50,9 +67,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-shell min-h-screen px-4 py-6 sm:px-6 sm:py-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-8">
-        <div className="flex-1 space-y-6 lg:space-y-8 lg:py-10">
+    <div className="auth-shell min-h-screen px-4 py-5 sm:px-6 sm:py-10">
+      <div className="mx-auto flex max-w-6xl flex-col gap-5 sm:gap-6 lg:flex-row lg:items-stretch lg:gap-8">
+        <div className="flex-1 space-y-5 sm:space-y-6 lg:space-y-8 lg:py-10">
           <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
             <ArrowLeft className="h-4 w-4" />
             Back to home
@@ -61,10 +78,10 @@ export default function LoginPage() {
           <div className="space-y-4">
             <SectionEyebrow icon={Sparkles} label="Welcome back to Morphly" />
             <div className="space-y-3">
-              <h1 className="max-w-xl text-balance text-[2rem] font-semibold tracking-tight sm:text-5xl">
+              <h1 className="max-w-xl text-balance text-[1.6rem] sm:text-4xl font-semibold tracking-tight leading-tight md:text-5xl">
                 Return to a calmer job-search workspace.
               </h1>
-              <p className="max-w-xl text-base leading-8 text-muted-foreground">
+              <p className="max-w-xl text-sm sm:text-base leading-7 sm:leading-8 text-muted-foreground">
                 Sign in to continue reviewing matched roles, tailoring documents, and tracking where you are in your search.
               </p>
             </div>
@@ -86,11 +103,11 @@ export default function LoginPage() {
         </div>
 
         <SurfaceCard className="w-full lg:max-w-md lg:self-center">
-          <div className="mb-6 space-y-2">
+          <div className="mb-5 sm:mb-6 space-y-2">
             <div className="flex h-11 w-11 items-center justify-center rounded-[1.25rem] border border-primary/10 bg-primary/10 text-primary">
               <LockKeyhole className="h-5 w-5" />
             </div>
-            <h2 className="text-2xl font-semibold tracking-tight">Sign in</h2>
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">Sign in</h2>
             <p className="text-sm leading-6 text-muted-foreground">
               Use your account to continue with job discovery, tailored drafts, and application tracking.
             </p>
@@ -134,7 +151,7 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-5 text-sm text-muted-foreground">
+          <p className="mt-4 sm:mt-5 text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
             <Link href="/register" className="font-medium text-primary hover:underline">
               Create one

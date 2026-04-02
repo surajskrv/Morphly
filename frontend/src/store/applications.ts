@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 import api from "@/services/api";
+import { toast } from "sonner";
 
 export type ApplicationStatus = "saved" | "ready" | "applied";
 
@@ -66,8 +67,10 @@ export const useApplicationsStore = create<ApplicationsState>()((set, get) => ({
     set({ loading: true });
     try {
       const res = await api.get("/applications/");
-      set({ applications: res.data, loading: false });
+      const data = res.data;
+      set({ applications: data.items ?? data, loading: false });
     } catch {
+      toast.error('Failed to load applications. Please try again.');
       set({ loading: false });
     }
   },

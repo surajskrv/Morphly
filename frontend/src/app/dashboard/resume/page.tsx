@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowRight,
   FileText,
   Loader2,
+  Sparkles,
   Trash2,
   UploadCloud,
 } from "lucide-react";
@@ -15,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   InfoCallout,
-  PageHeader,
   SectionEyebrow,
   SectionHeader,
   StatusBadge,
@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/product-shell";
 import { getErrorMessage } from "@/lib/error-utils";
 import api from "@/services/api";
+import { useResumeStatus, useProfile } from "@/hooks/queries";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ResumeState {
   resumeExists: boolean;
@@ -38,35 +40,26 @@ interface ProfilePreview {
 }
 
 export default function DashboardResumePage() {
-  const [resume, setResume] = useState<ResumeState>({ resumeExists: false, filename: null });
-  const [profilePreview, setProfilePreview] = useState<ProfilePreview | null>(null);
+  const queryClient = useQueryClient();
+  const { data: resumeData, isLoading: resumeLoading } = useResumeStatus();
+  const { data: profileData, isLoading: profileLoading } = useProfile();
+
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const loading = resumeLoading || profileLoading;
+
+  const resume = {
+    resumeExists: Boolean(resumeData?.resume_exists),
+    filename: resumeData?.filename || null,
+  };
+  const profilePreview = profileData?.extracted_profile || null;
 
   const uploadReady = Boolean(file);
   const previewSkills = useMemo(() => profilePreview?.skills?.slice(0, 8) || [], [profilePreview?.skills]);
 
-  const loadState = async () => {
-    setLoading(true);
-    try {
-      const [resumeRes, profileRes] = await Promise.all([api.get("/resume"), api.get("/profile")]);
-      setResume({
-        resumeExists: Boolean(resumeRes.data?.resume_exists),
-        filename: resumeRes.data?.filename || null,
-      });
-      setProfilePreview(profileRes.data?.extracted_profile || null);
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    loadState();
-  }, []);
 
   const uploadResume = async () => {
     if (!file) return;
@@ -77,8 +70,8 @@ export default function DashboardResumePage() {
       const res = await api.post("/resume/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setResume({ resumeExists: true, filename: res.data?.filename || file.name });
-      setProfilePreview(res.data?.extracted_profile || null);
+      queryClient.invalidateQueries({ queryKey: ["resumeStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
       setFile(null);
       toast.success("Base resume uploaded and profile extracted");
     } catch (err) {
@@ -92,8 +85,8 @@ export default function DashboardResumePage() {
     setDeleting(true);
     try {
       await api.delete("/resume");
-      setResume({ resumeExists: false, filename: null });
-      setProfilePreview(null);
+      queryClient.invalidateQueries({ queryKey: ["resumeStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Base resume deleted");
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -104,13 +97,6 @@ export default function DashboardResumePage() {
 
   return (
     <div className="space-y-6 content-fade-in">
-      <PageHeader
-        eyebrow={<SectionEyebrow icon={FileText} label="Onboarding step 1 of 3" />}
-        title="Upload one base resume that Morphly can use as the factual source for your whole workflow."
-        description="This is the document Morphly reads to build your starting profile and generate grounded drafts later. Replacing it refreshes extraction automatically."
-        actions={resume.resumeExists ? <StatusBadge tone="success">Resume ready</StatusBadge> : <StatusBadge tone="attention">Resume needed</StatusBadge>}
-      />
-
       <section className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
         <SurfaceCard>
           <SectionHeader
@@ -142,13 +128,13 @@ export default function DashboardResumePage() {
                 />
               )}
 
-              <div className="dashed-dropzone rounded-[1.5rem] px-4 py-5 sm:rounded-[1.75rem] sm:px-5 sm:py-6">
+              <div className="dashed-dropzone rounded-[1.25rem] sm:rounded-[1.5rem] px-3 py-4 sm:rounded-[1.75rem] sm:px-5 sm:py-6">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div className="space-y-2">
-                    <p className="text-base font-semibold tracking-tight text-foreground">
+                    <p className="text-sm sm:text-base font-semibold tracking-tight text-foreground">
                       {resume.resumeExists ? "Replace with a fresher version" : "Upload your resume"}
                     </p>
-                    <p className="max-w-lg text-sm leading-6 text-muted-foreground">
+                    <p className="max-w-lg text-xs sm:text-sm leading-5 sm:leading-6 text-muted-foreground">
                       Supported formats: PDF, DOC, DOCX. PDF parsing may be less precise than DOCX, but it is still supported.
                     </p>
                   </div>
@@ -156,7 +142,7 @@ export default function DashboardResumePage() {
                     type="file"
                     onChange={(e) => setFile(e.target.files?.[0] || null)}
                     accept=".pdf,.doc,.docx"
-                    className="w-full bg-background lg:max-w-xs"
+                    className="w-full bg-background lg:max-w-xs text-sm"
                   />
                 </div>
               </div>
@@ -193,7 +179,7 @@ export default function DashboardResumePage() {
             <div className="mt-5 space-y-4 text-sm">
               {previewSkills.length ? (
                 <div className="flex flex-wrap gap-2">
-                  {previewSkills.map((skill) => (
+                  {previewSkills.map((skill: string) => (
                     <StatusBadge key={skill} tone="info">{skill}</StatusBadge>
                   ))}
                 </div>

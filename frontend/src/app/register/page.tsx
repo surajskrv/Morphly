@@ -31,6 +31,16 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!fullName.trim()) {
+      toast.error("Full name is required");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -54,9 +64,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="auth-shell min-h-screen px-4 py-6 sm:px-6 sm:py-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-8">
-        <div className="flex-1 space-y-6 lg:space-y-8 lg:py-10">
+    <div className="auth-shell min-h-screen px-4 py-5 sm:px-6 sm:py-10">
+      <div className="mx-auto flex max-w-6xl flex-col gap-5 sm:gap-6 lg:flex-row lg:items-stretch lg:gap-8">
+        <div className="flex-1 space-y-5 sm:space-y-6 lg:space-y-8 lg:py-10">
           <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
             <ArrowLeft className="h-4 w-4" />
             Back to home
@@ -65,10 +75,10 @@ export default function RegisterPage() {
           <div className="space-y-4">
             <SectionEyebrow icon={Sparkles} label="Start your Morphly workspace" />
             <div className="space-y-3">
-              <h1 className="max-w-xl text-balance text-[2rem] font-semibold tracking-tight sm:text-5xl">
+              <h1 className="max-w-xl text-balance text-[1.6rem] sm:text-4xl font-semibold tracking-tight leading-tight md:text-5xl">
                 Create an account and move into a more organized search.
               </h1>
-              <p className="max-w-xl text-base leading-8 text-muted-foreground">
+              <p className="max-w-xl text-sm sm:text-base leading-7 sm:leading-8 text-muted-foreground">
                 Sign up to upload your base resume, confirm your profile, and start preparing stronger applications with less repetitive work.
               </p>
             </div>
@@ -90,11 +100,11 @@ export default function RegisterPage() {
         </div>
 
         <SurfaceCard className="w-full lg:max-w-md lg:self-center">
-          <div className="mb-6 space-y-2">
+          <div className="mb-5 sm:mb-6 space-y-2">
             <div className="flex h-11 w-11 items-center justify-center rounded-[1.25rem] border border-primary/10 bg-primary/10 text-primary">
               <UserPlus className="h-5 w-5" />
             </div>
-            <h2 className="text-2xl font-semibold tracking-tight">Create account</h2>
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">Create account</h2>
             <p className="text-sm leading-6 text-muted-foreground">
               Start free and build a calmer workflow for job discovery, drafting, and tracking.
             </p>

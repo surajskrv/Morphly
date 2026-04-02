@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import logging
 from datetime import datetime, timezone
 from typing import Any
 
@@ -12,6 +13,8 @@ from app.scrapers.internshala_scraper import fetch_internshala_jobs
 from app.scrapers.linkedin_scraper import fetch_linkedin_jobs
 from app.scrapers.naukri_scraper import fetch_naukri_jobs
 from app.scrapers.wellfound_scraper import fetch_wellfound_jobs
+
+logger = logging.getLogger(__name__)
 
 
 def _parse_posted_at(raw_value: Any) -> datetime | None:
@@ -62,7 +65,8 @@ class JobCollector:
         scraper = self.scrapers[source]
         try:
             return await scraper(query=query, location=location, limit=limit)
-        except Exception:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Scraper '%s' failed for query='%s' location='%s': %s", source, query, location, exc)
             return []
 
     def normalize_jobs(self, jobs: list[dict]) -> list[dict]:

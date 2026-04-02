@@ -48,7 +48,7 @@
 }
 
 :root {
-  --font-sans: "Avenir Next", "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Inter", "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
   --background: oklch(0.972 0.008 85);
@@ -132,10 +132,13 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    box-sizing: border-box;
   }
 
   html {
     @apply font-sans scroll-smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
@@ -144,6 +147,7 @@
       radial-gradient(circle at top left, oklch(0.96 0.03 175 / 28%), transparent 32%),
       radial-gradient(circle at top right, oklch(0.97 0.02 55 / 18%), transparent 28%),
       linear-gradient(180deg, oklch(0.985 0.006 88), oklch(0.968 0.008 85));
+    overscroll-behavior-y: none;
   }
 
   ::selection {
@@ -157,8 +161,34 @@
   a,
   button,
   input,
-  textarea {
+  textarea,
+  select {
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Smooth scrollbar for WebKit */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.72 0.01 80 / 40%);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.5 0.01 80 / 50%);
+  }
+
+  /* Better focus rings */
+  :focus-visible {
+    outline: 2px solid oklch(0.55 0.12 175 / 50%);
+    outline-offset: 2px;
   }
 }
 
@@ -302,6 +332,42 @@
   .bg-section-lavender { background-color: oklch(0.96 0.015 280); }
   .bg-section-peach { background-color: oklch(0.96 0.015 60); }
   .bg-section-sky { background-color: oklch(0.96 0.015 220); }
+
+  /* Safe area padding for notch devices */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  /* Stagger animation for lists */
+  .stagger-fade-in > * {
+    animation: content-fade-in 420ms ease-out both;
+  }
+
+  .stagger-fade-in > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-fade-in > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger-fade-in > *:nth-child(3) { animation-delay: 120ms; }
+  .stagger-fade-in > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger-fade-in > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger-fade-in > *:nth-child(6) { animation-delay: 300ms; }
+
+  /* Text truncation helpers */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { CalendarDays, ExternalLink, FileCheck2, Layers3, Save, Send } from "lucide-react";
 
@@ -30,14 +31,14 @@ function getStatusConfig(status: ApplicationRecord["status"]) {
   return { label: "Saved", tone: "attention" as const, icon: Layers3 };
 }
 
-export function ApplicationCard({ application }: { application: ApplicationRecord }) {
+export const ApplicationCard = memo(function ApplicationCard({ application }: { application: ApplicationRecord }) {
   const status = getStatusConfig(application.status);
   const sourceHref = application.job?.apply_url || application.job?.url;
   const hasResumeDraft = Boolean(application.resume_sections?.length);
   const hasCoverLetter = Boolean(application.cover_letter_content);
 
   return (
-    <SurfaceCard className="soft-shadow-hover p-5">
+    <SurfaceCard className="soft-shadow-hover p-4 sm:p-5">
       <SectionHeader
         title={application.job?.title || "Unknown role"}
         description={
@@ -49,20 +50,20 @@ export function ApplicationCard({ application }: { application: ApplicationRecor
         action={<StatusBadge tone={status.tone} icon={status.icon}>{status.label}</StatusBadge>}
       />
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2">
         {hasResumeDraft ? <StatusBadge tone="info" icon={Save}>Resume draft saved</StatusBadge> : null}
         {hasCoverLetter ? <StatusBadge tone="success" icon={Save}>Cover letter saved</StatusBadge> : null}
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <div className="surface-subtle rounded-[1.25rem] border border-border/70 px-4 py-3 text-sm text-muted-foreground">
+      <div className="mt-4 sm:mt-5 grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2">
+        <div className="surface-subtle rounded-[1.1rem] sm:rounded-[1.25rem] border border-border/70 px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-muted-foreground">
           <div className="flex items-center gap-2 font-medium text-foreground">
             <CalendarDays className="h-4 w-4 text-primary" />
             Saved to tracking
           </div>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">{formatDate(application.created_at)}</p>
         </div>
-        <div className="surface-subtle rounded-[1.25rem] border border-border/70 px-4 py-3 text-sm text-muted-foreground">
+        <div className="surface-subtle rounded-[1.1rem] sm:rounded-[1.25rem] border border-border/70 px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-muted-foreground">
           <div className="flex items-center gap-2 font-medium text-foreground">
             <CalendarDays className="h-4 w-4 text-primary" />
             Last activity
@@ -73,7 +74,7 @@ export function ApplicationCard({ application }: { application: ApplicationRecor
         </div>
       </div>
 
-      <div className="mt-5 flex flex-wrap items-center gap-2">
+      <div className="mt-4 sm:mt-5 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2">
         {sourceHref ? (
           <Button asChild variant="subtle" className="w-full sm:w-auto">
             <a href={sourceHref} target="_blank" rel="noopener noreferrer">
@@ -92,4 +93,4 @@ export function ApplicationCard({ application }: { application: ApplicationRecor
       </div>
     </SurfaceCard>
   );
-}
+});

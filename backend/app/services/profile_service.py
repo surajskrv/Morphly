@@ -7,52 +7,54 @@ from app.models.preference import ExtractedProfile, Preference, UserPreferences
 from app.schemas.profile import FetchStatusSchema, MergedProfileSchema, ProfileResponse
 
 TECH_SKILLS = [
-    "python",
-    "java",
-    "javascript",
-    "typescript",
-    "react",
-    "next.js",
-    "node.js",
-    "express",
-    "fastapi",
-    "django",
-    "flask",
-    "mongodb",
-    "postgresql",
-    "mysql",
-    "redis",
-    "docker",
-    "kubernetes",
-    "aws",
-    "gcp",
-    "azure",
-    "graphql",
-    "rest",
-    "html",
-    "css",
-    "tailwind",
-    "git",
-    "linux",
-    "pandas",
-    "numpy",
-    "machine learning",
-    "tensorflow",
-    "pytorch",
-    "figma",
-    "product management",
-    "data analysis",
-    "sql",
+    # Languages
+    "python", "java", "javascript", "typescript", "go", "golang", "rust", "c++",
+    "c#", "ruby", "php", "swift", "kotlin", "scala", "r", "matlab", "dart", "elixir",
+    "perl", "lua", "haskell", "clojure", "solidity",
+    # Frontend
+    "react", "next.js", "vue", "angular", "svelte", "ember", "nuxt", "remix",
+    "html", "css", "tailwind", "sass", "webpack", "vite", "storybook",
+    # Backend
+    "node.js", "express", "fastapi", "django", "flask", "spring", "spring boot",
+    "rails", "laravel", "asp.net", "gin", "fiber", "nestjs", "graphql", "rest",
+    "grpc", "websocket",
+    # Data & ML
+    "pandas", "numpy", "machine learning", "tensorflow", "pytorch", "scikit-learn",
+    "spark", "hadoop", "kafka", "airflow", "dbt", "snowflake", "databricks",
+    "deep learning", "nlp", "computer vision", "opencv", "huggingface",
+    # Databases
+    "mongodb", "postgresql", "mysql", "redis", "elasticsearch", "cassandra",
+    "dynamodb", "sqlite", "oracle", "neo4j", "supabase", "firebase", "sql",
+    # DevOps & Cloud
+    "docker", "kubernetes", "aws", "gcp", "azure", "terraform", "ansible",
+    "jenkins", "github actions", "gitlab ci", "circleci", "prometheus", "grafana",
+    "nginx", "linux", "bash",
+    # Tools
+    "git", "figma", "jira", "confluence", "postman", "swagger",
+    # Specializations
+    "product management", "data analysis", "data engineering", "cybersecurity",
+    "blockchain", "web3", "microservices", "system design", "ci/cd",
+    # Mobile
+    "react native", "flutter", "ios", "android", "swiftui", "jetpack compose",
 ]
 
 ROLE_PATTERNS = {
-    "Backend Engineer": ["backend engineer", "backend developer", "python developer", "api engineer"],
-    "Frontend Engineer": ["frontend engineer", "frontend developer", "react developer", "ui engineer"],
-    "Full Stack Engineer": ["full stack engineer", "fullstack engineer", "full stack developer"],
-    "Data Analyst": ["data analyst", "business analyst", "analytics analyst"],
-    "Data Scientist": ["data scientist", "machine learning engineer", "ml engineer"],
-    "Product Manager": ["product manager", "associate product manager"],
-    "UI/UX Designer": ["ui designer", "ux designer", "product designer"],
+    "Backend Engineer": ["backend engineer", "backend developer", "python developer", "api engineer", "server engineer"],
+    "Frontend Engineer": ["frontend engineer", "frontend developer", "react developer", "ui engineer", "web developer"],
+    "Full Stack Engineer": ["full stack engineer", "fullstack engineer", "full stack developer", "fullstack developer"],
+    "Mobile Developer": ["mobile developer", "mobile engineer", "ios developer", "android developer", "flutter developer", "react native developer"],
+    "DevOps Engineer": ["devops engineer", "devops", "site reliability", "sre", "infrastructure engineer", "platform engineer"],
+    "Cloud Engineer": ["cloud engineer", "cloud architect", "cloud developer", "solutions architect"],
+    "Data Analyst": ["data analyst", "business analyst", "analytics analyst", "bi analyst"],
+    "Data Scientist": ["data scientist", "machine learning engineer", "ml engineer", "ai engineer", "research scientist"],
+    "Data Engineer": ["data engineer", "etl developer", "analytics engineer"],
+    "Product Manager": ["product manager", "associate product manager", "technical product manager"],
+    "UI/UX Designer": ["ui designer", "ux designer", "product designer", "interaction designer"],
+    "QA Engineer": ["qa engineer", "quality assurance", "test engineer", "sdet", "test automation"],
+    "Security Engineer": ["security engineer", "cybersecurity", "information security", "appsec", "penetration tester"],
+    "Engineering Manager": ["engineering manager", "tech lead", "team lead", "vp engineering", "director of engineering"],
+    "Technical Writer": ["technical writer", "documentation engineer", "developer advocate", "developer relations"],
+    "Embedded Engineer": ["embedded engineer", "embedded developer", "firmware engineer", "iot engineer"],
 }
 
 EDUCATION_KEYWORDS = ("b.tech", "b.e", "bsc", "bachelor", "m.tech", "msc", "master", "mba")

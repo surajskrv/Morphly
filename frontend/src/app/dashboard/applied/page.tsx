@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { ClipboardCheck, FileCheck2, Layers3, Send } from "lucide-react";
 
 import { ApplicationCard } from "@/components/dashboard/application-card";
-import { EmptyState, FilterChips, PageHeader, SectionEyebrow, StatusBadge, SurfaceCard } from "@/components/ui/product-shell";
-import { type ApplicationStatus, useApplicationsStore } from "@/store/applications";
+import { EmptyState, FilterChips, SectionEyebrow, StatusBadge, SurfaceCard } from "@/components/ui/product-shell";
+import type { ApplicationStatus, ApplicationRecord } from "@/store/applications";
+import { useApplications } from "@/hooks/queries";
 
 const STATUS_FILTERS: ReadonlyArray<{ value: ApplicationStatus | "all"; label: string }> = [
   { value: "all", label: "All" },
@@ -15,54 +16,39 @@ const STATUS_FILTERS: ReadonlyArray<{ value: ApplicationStatus | "all"; label: s
 ];
 
 export default function DashboardAppliedPage() {
-  const { applications, fetchApplications, loading } = useApplicationsStore();
+  const { data: applications = [], isLoading: loading } = useApplications();
   const [filter, setFilter] = useState<ApplicationStatus | "all">("all");
-
-  useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications]);
 
   const filteredApplications = useMemo(() => {
     if (filter === "all") return applications;
-    return applications.filter((item) => item.status === filter);
+    return applications.filter((item: ApplicationRecord) => item.status === filter);
   }, [applications, filter]);
 
   const counts = useMemo(
     () => ({
-      saved: applications.filter((item) => item.status === "saved").length,
-      ready: applications.filter((item) => item.status === "ready").length,
-      applied: applications.filter((item) => item.status === "applied").length,
+      saved: applications.filter((item: ApplicationRecord) => item.status === "saved").length,
+      ready: applications.filter((item: ApplicationRecord) => item.status === "ready").length,
+      applied: applications.filter((item: ApplicationRecord) => item.status === "applied").length,
     }),
     [applications]
   );
 
   return (
     <div className="space-y-6 content-fade-in">
-      <PageHeader
-        eyebrow={<SectionEyebrow icon={ClipboardCheck} label="Application tracking" />}
-        title="Keep your saved, prepared, and applied roles organized."
-        description="Tracking should feel like a quick pulse-check, not another backlog. Filter by status and return to any workspace when needed."
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge tone="info">{filteredApplications.length} visible</StatusBadge>
-            <StatusBadge tone="success">Sorted by recent activity</StatusBadge>
-          </div>
-        }
-      />
 
       <SurfaceCard className="space-y-5">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="surface-subtle rounded-[1.35rem] border border-border/70 px-4 py-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground"><Layers3 className="h-4 w-4 text-amber-700" /> Saved</div>
-            <p className="mt-2 text-2xl font-semibold tracking-tight">{counts.saved}</p>
+        <div className="grid gap-2 sm:gap-3 grid-cols-3">
+          <div className="surface-subtle rounded-[1.15rem] sm:rounded-[1.35rem] border border-border/70 px-3 sm:px-4 py-3 sm:py-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-foreground"><Layers3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-700" /> Saved</div>
+            <p className="mt-1.5 sm:mt-2 text-xl sm:text-2xl font-semibold tracking-tight">{counts.saved}</p>
           </div>
-          <div className="surface-subtle rounded-[1.35rem] border border-border/70 px-4 py-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground"><FileCheck2 className="h-4 w-4 text-sky-700" /> Ready</div>
-            <p className="mt-2 text-2xl font-semibold tracking-tight">{counts.ready}</p>
+          <div className="surface-subtle rounded-[1.15rem] sm:rounded-[1.35rem] border border-border/70 px-3 sm:px-4 py-3 sm:py-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-foreground"><FileCheck2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-sky-700" /> Ready</div>
+            <p className="mt-1.5 sm:mt-2 text-xl sm:text-2xl font-semibold tracking-tight">{counts.ready}</p>
           </div>
-          <div className="surface-subtle rounded-[1.35rem] border border-border/70 px-4 py-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground"><Send className="h-4 w-4 text-emerald-700" /> Applied</div>
-            <p className="mt-2 text-2xl font-semibold tracking-tight">{counts.applied}</p>
+          <div className="surface-subtle rounded-[1.15rem] sm:rounded-[1.35rem] border border-border/70 px-3 sm:px-4 py-3 sm:py-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-foreground"><Send className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-700" /> Applied</div>
+            <p className="mt-1.5 sm:mt-2 text-xl sm:text-2xl font-semibold tracking-tight">{counts.applied}</p>
           </div>
         </div>
 
@@ -81,7 +67,7 @@ export default function DashboardAppliedPage() {
             }
           />
         ) : (
-          filteredApplications.map((application) => (
+          filteredApplications.map((application: ApplicationRecord) => (
             <ApplicationCard key={application.id} application={application} />
           ))
         )}

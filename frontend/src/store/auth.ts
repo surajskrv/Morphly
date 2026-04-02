@@ -11,7 +11,7 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  login: (token: string, user: User) => void;
+  login: (token: string, user: User, refreshToken?: string) => void;
   logout: () => void;
   checkAuth: () => Promise<void>;
 }
@@ -21,12 +21,16 @@ export const useAuthStore = create<AuthState>()((set) => ({
   // Keep initial state SSR-safe to avoid hydration mismatches.
   token: null,
   isAuthenticated: false,
-  login: (token, user) => {
+  login: (token, user, refreshToken) => {
     localStorage.setItem('token', token);
+    if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
     set({ token, user, isAuthenticated: true });
   },
   logout: () => {
+    // Fire-and-forget: blacklist the token server-side
+    api.post('/auth/logout').catch(() => {});
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
     set({ token: null, user: null, isAuthenticated: false });
   },
   checkAuth: async () => {

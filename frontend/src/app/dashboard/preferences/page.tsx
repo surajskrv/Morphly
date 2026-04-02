@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   InfoCallout,
-  PageHeader,
   SectionEyebrow,
   SectionHeader,
   StatusBadge,
@@ -17,6 +16,8 @@ import {
 } from "@/components/ui/product-shell";
 import { getErrorMessage } from "@/lib/error-utils";
 import api from "@/services/api";
+import { useProfile, useTriggerJobFetch } from "@/hooks/queries";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProfileResponse {
   extracted_profile: {
@@ -52,7 +53,10 @@ interface ProfileResponse {
 }
 
 export default function DashboardPreferencesPage() {
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: fetchProfile, isLoading: loading } = useProfile();
+  const { mutateAsync: triggerJobFetch } = useTriggerJobFetch();
+
   const [saving, setSaving] = useState(false);
   const [fetchingJobs, setFetchingJobs] = useState(false);
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
@@ -66,25 +70,21 @@ export default function DashboardPreferencesPage() {
   const [preferredCompanies, setPreferredCompanies] = useState("");
 
   useEffect(() => {
-    api
-      .get("/profile")
-      .then((res) => {
-        const payload = res.data as ProfileResponse;
-        const merged = payload.merged_profile || {};
-        setProfile(payload);
-        setDesiredRole(merged.desired_role || "");
-        setLocation(merged.location || "");
-        setSkills(Array.isArray(merged.skills) ? merged.skills.join(", ") : "");
-        setExperienceLevel(merged.experience_level || "");
-        setRemoteOnly(Boolean(merged.remote_only));
-        setSalaryMin(merged.salary_min != null ? String(merged.salary_min) : "");
-        setPreferredCompanies(
-          Array.isArray(merged.preferred_companies) ? merged.preferred_companies.join(", ") : ""
-        );
-      })
-      .catch((err) => toast.error(getErrorMessage(err)))
-      .finally(() => setLoading(false));
-  }, []);
+    if (fetchProfile) {
+      const payload = fetchProfile;
+      const merged = payload.merged_profile || {};
+      setProfile(payload);
+      setDesiredRole(merged.desired_role || "");
+      setLocation(merged.location || "");
+      setSkills(Array.isArray(merged.skills) ? merged.skills.join(", ") : "");
+      setExperienceLevel(merged.experience_level || "");
+      setRemoteOnly(Boolean(merged.remote_only));
+      setSalaryMin(merged.salary_min != null ? String(merged.salary_min) : "");
+      setPreferredCompanies(
+        Array.isArray(merged.preferred_companies) ? merged.preferred_companies.join(", ") : ""
+      );
+    }
+  }, [fetchProfile]);
 
   const completion = useMemo(() => {
     const values = [desiredRole, location, skills, experienceLevel];
@@ -110,6 +110,7 @@ export default function DashboardPreferencesPage() {
           .filter(Boolean),
       });
       setProfile(res.data);
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Profile reviewed and saved");
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -121,7 +122,7 @@ export default function DashboardPreferencesPage() {
   const fetchJobsNow = async () => {
     setFetchingJobs(true);
     try {
-      await api.post("/jobs/fetch");
+      await triggerJobFetch();
       toast.success("Job fetch triggered");
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -132,13 +133,6 @@ export default function DashboardPreferencesPage() {
 
   return (
     <div className="space-y-6 content-fade-in">
-      <PageHeader
-        eyebrow={<SectionEyebrow icon={Sparkles} label="Onboarding step 2 of 3" />}
-        title="Review what Morphly learned from your resume and keep the important parts accurate."
-        description="Your uploaded resume gave Morphly a starting point. This screen is where you turn that into a cleaner profile for matching and draft generation."
-        actions={<StatusBadge tone="info">{completion}% reviewed</StatusBadge>}
-      />
-
       <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <SurfaceCard>
           <SectionHeader
@@ -158,7 +152,7 @@ export default function DashboardPreferencesPage() {
                 description="Keep this profile factual and stable. Tailoring happens later inside each job workspace, so this page should reflect your true baseline preferences."
               />
 
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Target role</label>
                   <Input value={desiredRole} onChange={(e) => setDesiredRole(e.target.value)} placeholder="Backend Engineer" />
@@ -201,7 +195,7 @@ export default function DashboardPreferencesPage() {
                 <p className="text-xs text-muted-foreground">Optional. Use this only for companies you actively want to prioritize.</p>
               </div>
 
-              <label className="surface-subtle flex items-center gap-3 rounded-[1.35rem] border border-border/70 px-4 py-4 text-sm font-medium text-foreground">
+              <label className="surface-subtle flex items-center gap-3 rounded-[1.15rem] sm:rounded-[1.35rem] border border-border/70 px-3 sm:px-4 py-3 sm:py-4 text-sm font-medium text-foreground cursor-pointer">
                 <input
                   type="checkbox"
                   checked={remoteOnly}

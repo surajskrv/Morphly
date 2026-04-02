@@ -18,7 +18,6 @@ import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import {
   ActionPanel,
-  PageHeader,
   SectionEyebrow,
   SectionHeader,
   StatusBadge,
@@ -79,28 +78,28 @@ export default function Home() {
     <div className="min-h-screen text-foreground">
       <Navbar />
 
-      <section className="marketing-hero border-b border-border/60 px-4 py-12 sm:px-6 sm:py-18">
+      <section className="marketing-hero border-b border-border/60 px-4 py-8 sm:px-6 sm:py-12 md:py-18">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
           <div className="space-y-7">
             <SectionEyebrow icon={Sparkles} label="Calmer job discovery and application prep" />
             <div className="space-y-4">
-              <h1 className="max-w-4xl text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-4xl text-balance text-[1.7rem] sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-tight">
                 Find better-fit jobs and prepare better applications without the usual mess.
               </h1>
-              <p className="max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
+              <p className="max-w-2xl text-sm sm:text-base leading-7 sm:leading-8 text-muted-foreground">
                 Morphly brings matching jobs into one workspace, reads your base resume, and helps you generate grounded resume and cover-letter drafts before you apply on the original site.
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/register" className="sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto">
+            <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row">
+              <Link href="/register" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full">
                   Start your workspace
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/login" className="sm:w-auto">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
+              <Link href="/login" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full">
                   Sign in
                 </Button>
               </Link>
@@ -168,13 +167,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-4 py-16 sm:px-6">
+      <section className="px-4 py-10 sm:px-6 sm:py-16">
         <div className="mx-auto max-w-7xl space-y-8">
           <SectionHeader
             title="What Morphly is actually good at"
             description="Not a vague auto-apply bot. A focused workflow for discovery, tailoring, and decision-making."
           />
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
             {featureCards.map((feature) => (
               <SurfaceCard key={feature.title} className="soft-shadow-hover">
                 <div className="flex h-11 w-11 items-center justify-center rounded-[1.25rem] border border-primary/10 bg-primary/10 text-primary">
@@ -190,11 +189,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-y border-border/60 bg-card/55 px-4 py-16 sm:px-6">
+      <section className="border-y border-border/60 bg-card/55 px-4 py-10 sm:px-6 sm:py-16">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
           <div className="space-y-4">
             <SectionEyebrow label="How it flows" />
-            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="text-balance text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">
               One base resume. One guided workflow. Less second-guessing.
             </h2>
             <p className="text-sm leading-7 text-muted-foreground sm:text-base">
@@ -220,7 +219,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-4 py-16 sm:px-6">
+      <section className="px-4 py-10 sm:px-6 sm:py-16">
         <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[0.9fr_1.1fr]">
           <SurfaceCard>
             <SectionHeader
@@ -237,29 +236,42 @@ export default function Home() {
             </div>
           </SurfaceCard>
 
-          <PageHeader
-            className="h-full"
-            eyebrow={<SectionEyebrow icon={FileText} label="Ready when you are" />}
-            title="Build stronger applications with less friction."
-            description="Create your free account, upload your base resume, and move into a calmer application-prep workflow that keeps you in control of the final apply step."
-            actions={
-              <>
-                <Link href="/register">
-                  <Button size="lg" className="w-full sm:w-auto">
-                    Create free account
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href="/login">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                    Continue working
-                  </Button>
-                </Link>
-              </>
-            }
-          />
+          <div className="h-full space-y-4">
+            <SectionEyebrow icon={FileText} label="Ready when you are" />
+            <h2 className="text-balance text-2xl sm:text-3xl md:text-3xl font-semibold tracking-tight leading-tight">Build stronger applications with less friction.</h2>
+            <p className="text-sm leading-7 text-muted-foreground sm:text-base">Create your free account, upload your base resume, and move into a calmer application-prep workflow that keeps you in control of the final apply step.</p>
+            <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row mt-4">
+              <Link href="/register">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Create free account
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                  Continue working
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
+
+      <footer className="border-t border-border/60 bg-card/40 px-4 py-8 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-primary/10 bg-primary/10 text-primary">
+              <Sparkles className="h-3.5 w-3.5" />
+            </div>
+            <span className="text-sm font-semibold tracking-tight">Morphly</span>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
+            <Link href="/login" className="transition-colors hover:text-foreground">Sign in</Link>
+            <Link href="/register" className="transition-colors hover:text-foreground">Get started</Link>
+          </div>
+          <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Morphly</p>
+        </div>
+      </footer>
     </div>
   );
 }

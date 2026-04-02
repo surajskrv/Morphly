@@ -3,7 +3,7 @@ services:
     image: mongo:6
     restart: always
     volumes:
-      - /data/mongo_data:/data/db
+      - mongo_data:/data/db
 
   redis:
     image: redis:7
@@ -17,9 +17,12 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
+    volumes:
+      - uploads_data:/app/uploads
     environment:
       MONGODB_URL: ${MONGODB_URL:-mongodb://db:27017/morphly}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
       BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:3000}
     depends_on:
       - db
@@ -61,3 +64,7 @@ services:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api/v1}
     depends_on:
       - api
+
+volumes:
+  mongo_data:
+  uploads_data:

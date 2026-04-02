@@ -15,6 +15,7 @@ from app.schemas.application import (
     ApplicationStatusUpdate,
     ApplicationUpdate,
 )
+from app.schemas.pagination import PaginatedResponse
 
 router = APIRouter()
 
@@ -114,7 +115,21 @@ async def update_application(
         return _serialize_application(application, job)
 
     if "status" in updates and updates["status"] is not None:
-        application.status = updates["status"]
+        VALID_STATUS_TRANSITIONS = {
+            "saved": {"ready", "applied"},
+            "ready": {"applied", "saved"},
+            "applied": set(),  # terminal state
+        }
+        current_status = application.status or "saved"
+        new_status = updates["status"]
+        allowed = VALID_STATUS_TRANSITIONS.get(current_status, set())
+        if new_status != current_status and new_status not in allowed:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot transition from '{current_status}' to '{new_status}'. "
+                       f"Allowed: {', '.join(allowed) if allowed else 'none (terminal state)'}",
+            )
+        application.status = new_status
     elif any(
         key in updates
         for key in {"resume_sections", "resume_grounding", "cover_letter_content", "cover_letter_grounding", "resume_path"}
@@ -140,13 +155,15 @@ async def update_application(
     job = await _get_job(application.job_id)
     return _serialize_application(application, job)
 
-@router.get("/", response_model=List[ApplicationResponse])
+@router.get("/")
 async def get_applications(
     skip: int = 0, limit: int = 100,
     current_user: User = Depends(get_current_user)
 ):
+    user_filter = Application.user_id == str(current_user.id)
+    total = await Application.find(user_filter).count()
     apps = (
-        await Application.find(Application.user_id == str(current_user.id))
+        await Application.find(user_filter)
         .sort(-Application.updated_at)
         .skip(skip)
         .limit(limit)
@@ -163,4 +180,10 @@ async def get_applications(
         results.append(_serialize_application(app_doc))
         if app_doc.job_id in job_cache:
             results[-1]["job"] = job_cache[app_doc.job_id].model_dump()
-    return results
+    return PaginatedResponse(
+        items=results,
+        total=total,
+        skip=skip,
+        limit=limit,
+        has_more=(skip + limit) < total,
+    )

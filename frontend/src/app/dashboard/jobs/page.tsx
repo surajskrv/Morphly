@@ -20,14 +20,12 @@ import { Input } from "@/components/ui/input";
 import {
   EmptyState,
   FilterChips,
-  PageHeader,
   SectionEyebrow,
   StatusBadge,
   SurfaceCard,
 } from "@/components/ui/product-shell";
-import api from "@/services/api";
 import type { Job } from "@/store/jobs";
-import { useJobsStore } from "@/store/jobs";
+import { useRecommendedJobs, useJobFetchStatus, useTriggerJobFetch } from "@/hooks/queries";
 
 type TimeFilter = "any" | "1h" | "1d" | "1w";
 type MatchFilter = "all" | "80" | "60" | "40";
@@ -123,16 +121,16 @@ export default function DashboardJobsPage() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { jobs, loading, fetchJobs, fetchStatus, fetchFetchStatus } = useJobsStore();
+  
+  const { data: jobs = [], isLoading: loading } = useRecommendedJobs();
+  const { data: fetchStatus } = useJobFetchStatus();
+  const { mutateAsync: triggerJobFetch } = useTriggerJobFetch();
+
   const [refreshing, setRefreshing] = useState(false);
   const [query, setQuery] = useState(searchParams.get("query") || "");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>((searchParams.get("time") as TimeFilter) || "any");
   const [matchFilter, setMatchFilter] = useState<MatchFilter>((searchParams.get("match") as MatchFilter) || "all");
   const [sourceFilter, setSourceFilter] = useState(searchParams.get("source") || "all");
-
-  useEffect(() => {
-    void Promise.all([fetchJobs(), fetchFetchStatus()]);
-  }, [fetchFetchStatus, fetchJobs]);
 
   useEffect(() => {
     setQuery(searchParams.get("query") || "");
@@ -141,18 +139,8 @@ export default function DashboardJobsPage() {
     setSourceFilter(searchParams.get("source") || "all");
   }, [searchParams]);
 
-  useEffect(() => {
-    if (!fetchStatus?.in_progress) return;
-
-    const interval = window.setInterval(() => {
-      void Promise.all([fetchFetchStatus(), fetchJobs()]);
-    }, 4000);
-
-    return () => window.clearInterval(interval);
-  }, [fetchFetchStatus, fetchJobs, fetchStatus?.in_progress]);
-
   const sourceOptions = useMemo(() => {
-    const values = Array.from(new Set(jobs.map((job) => job.source).filter(Boolean) as string[])).sort((a, b) =>
+    const values = Array.from(new Set(jobs.map((job: Job) => job.source).filter(Boolean) as string[])).sort((a, b) =>
       a.localeCompare(b)
     );
     return ["all", ...values];
@@ -234,9 +222,8 @@ export default function DashboardJobsPage() {
   const triggerRefresh = async () => {
     setRefreshing(true);
     try {
-      await api.post("/jobs/fetch");
+      await triggerJobFetch();
       toast.success("Background job refresh started");
-      await fetchFetchStatus();
     } catch {
       toast.error("Failed to trigger job fetch");
     } finally {
@@ -251,24 +238,18 @@ export default function DashboardJobsPage() {
 
   return (
     <div className="space-y-5 content-fade-in">
-      <PageHeader
-        className="sm:py-6"
-        eyebrow={<SectionEyebrow icon={Sparkles} label="Recommended jobs" />}
-        title="The roles worth your attention, in one cleaner workspace."
-        description="Filter by freshness, source, and match strength, then move straight into document prep when something looks right."
-      />
 
-      <div className="sticky top-[6.6rem] z-10 sm:top-[7.25rem] lg:top-[5.75rem]">
-        <SurfaceCard className="tab-bar-shell border-border/80 bg-card/90 p-4 shadow-[0_14px_34px_oklch(0.35_0.01_80_/_8%)] backdrop-blur-xl sm:p-5">
-          <div className="flex flex-col gap-4">
+      <div className="sticky top-[5.2rem] z-10 sm:top-[6rem] lg:top-[5.75rem]">
+        <SurfaceCard className="tab-bar-shell border-border/80 bg-card/90 p-3 sm:p-4 md:p-5 shadow-[0_14px_34px_oklch(0.35_0.01_80_/_8%)] backdrop-blur-xl">
+          <div className="flex flex-col gap-3 sm:gap-4">
             <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
               <div className="relative max-w-2xl flex-1">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search roles, companies, locations, skills, or match reasons"
-                  className="h-11 rounded-2xl border-border/80 bg-background/85 pl-11"
+                  placeholder="Search roles, companies, skills…"
+                  className="h-10 sm:h-11 rounded-xl sm:rounded-2xl border-border/80 bg-background/85 pl-10 sm:pl-11 text-sm"
                 />
               </div>
 
@@ -280,14 +261,14 @@ export default function DashboardJobsPage() {
                       ? `Last completed ${completedAtLabel}`
                       : "Fetch the latest listings when you want a fresher feed"}
                 </div>
-                <Button variant="outline" onClick={triggerRefresh} disabled={refreshing || fetchStatus?.in_progress} className="w-full sm:w-auto">
+                <Button variant="outline" size="sm" onClick={triggerRefresh} disabled={refreshing || fetchStatus?.in_progress} className="w-full sm:w-auto">
                   <RefreshCw className={`h-3.5 w-3.5 ${refreshing || fetchStatus?.in_progress ? "animate-spin" : ""}`} />
                   {fetchStatus?.in_progress ? "Refreshing" : "Fetch latest"}
                 </Button>
               </div>
             </div>
 
-            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px] xl:grid-cols-[minmax(0,1fr)_220px_220px]">
+            <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_220px] xl:grid-cols-[minmax(0,1fr)_220px_220px]">
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                   Posted window
@@ -341,8 +322,8 @@ export default function DashboardJobsPage() {
         </SurfaceCard>
       </div>
 
-      <SurfaceCard className="p-4 sm:p-5">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <SurfaceCard className="p-3 sm:p-4 md:p-5">
+        <div className="flex flex-col gap-2 sm:gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge tone="info" icon={SlidersHorizontal}>
@@ -357,7 +338,7 @@ export default function DashboardJobsPage() {
                 </StatusBadge>
               ) : null}
             </div>
-            <p className="text-sm leading-6 text-muted-foreground">
+            <p className="text-xs sm:text-sm leading-5 sm:leading-6 text-muted-foreground">
               {activeFilterCount > 0
                 ? "Your current filters are narrowing the recommendation feed to the most relevant roles."
                 : "You are seeing the strongest recommended roles first across the current feed."}

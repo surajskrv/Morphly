@@ -21,7 +21,6 @@ import { Button } from "@/components/ui/button";
 import {
   EmptyState,
   InfoCallout,
-  PageHeader,
   SectionEyebrow,
   SectionHeader,
   StatusBadge,
@@ -53,7 +52,7 @@ interface GeneratedCoverLetter {
 }
 
 const editorClassName =
-  "min-h-[180px] w-full rounded-[1.5rem] border border-border/70 bg-background/92 px-4 py-3 text-sm leading-7 text-foreground outline-none transition-[border-color,box-shadow] focus:ring-4 focus:ring-ring/12";
+  "min-h-[140px] sm:min-h-[180px] w-full rounded-[1.25rem] sm:rounded-[1.5rem] border border-border/70 bg-background/92 px-3 sm:px-4 py-3 text-sm leading-7 text-foreground outline-none transition-[border-color,box-shadow] focus:ring-4 focus:ring-ring/12";
 
 function formatStatusLabel(status?: string) {
   if (status === "applied") return "Applied";
@@ -289,7 +288,7 @@ export default function JobWorkspacePage() {
 
   return (
     <div className="space-y-6 content-fade-in">
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <Button asChild variant="ghost" className="w-full sm:w-auto">
           <Link href="/dashboard/jobs">
             <ArrowLeft className="h-3.5 w-3.5" />
@@ -319,20 +318,20 @@ export default function JobWorkspacePage() {
         </div>
       </div>
 
-      <PageHeader
-        eyebrow={<SectionEyebrow icon={Sparkles} label={job.source || "Job workspace"} />}
-        title={job.title}
-        description={`${job.company} · ${job.location || "Remote"}`}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge tone={formatStatusTone(application?.status)}>
-              {formatStatusLabel(application?.status)}
-            </StatusBadge>
-            {hasResumeDraft ? <StatusBadge tone="info">Resume draft saved</StatusBadge> : null}
-            {hasCoverDraft ? <StatusBadge tone="success">Cover letter saved</StatusBadge> : null}
-          </div>
-        }
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-1 my-2">
+          <SectionEyebrow icon={Sparkles} label={job.source || "Job workspace"} />
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">{job.title}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{`${job.company} · ${job.location || "Remote"}`}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge tone={formatStatusTone(application?.status)}>
+            {formatStatusLabel(application?.status)}
+          </StatusBadge>
+          {hasResumeDraft ? <StatusBadge tone="info">Resume draft saved</StatusBadge> : null}
+          {hasCoverDraft ? <StatusBadge tone="success">Cover letter saved</StatusBadge> : null}
+        </div>
+      </div>
 
       <section className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
         <WorkspacePane
@@ -405,7 +404,7 @@ export default function JobWorkspacePage() {
                   setCoverLetterDraft((current) => (current ? { ...current, content: event.target.value } : current));
                   setCoverDirty(true);
                 }}
-                className={`${editorClassName} min-h-[360px] sm:min-h-[460px]`}
+                className={`${editorClassName} min-h-[280px] sm:min-h-[360px] md:min-h-[460px]`}
               />
             ) : (
               <EmptyState
@@ -488,7 +487,7 @@ export default function JobWorkspacePage() {
               description="Keep the original source context visible while editing."
             />
             {job.description ? (
-              <div className="mt-5 max-h-[420px] overflow-auto rounded-[1.35rem] border border-border/70 bg-background/88 px-4 py-4 text-sm leading-7 text-muted-foreground">
+              <div className="mt-4 sm:mt-5 max-h-[320px] sm:max-h-[420px] overflow-auto rounded-[1.15rem] sm:rounded-[1.35rem] border border-border/70 bg-background/88 px-3 sm:px-4 py-3 sm:py-4 text-sm leading-7 text-muted-foreground">
                 {job.description}
               </div>
             ) : (

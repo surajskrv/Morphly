@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -52,15 +53,15 @@ function getPostedLabel(value?: string) {
   });
 }
 
-export function JobCard({ job, showDescription = false }: JobCardProps) {
+export const JobCard = memo(function JobCard({ job, showDescription = false }: JobCardProps) {
   const applyHref = job.apply_url || job.url;
   const fitScore = Math.round((job.match_score ?? job.relevance_score ?? 0) * 100);
   const postedLabel = getPostedLabel(job.posted_at);
 
   return (
-    <SurfaceCard className="soft-shadow-hover content-fade-in p-5 sm:p-6">
-      <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-        <div className="min-w-0 flex-1 space-y-4">
+    <SurfaceCard className="soft-shadow-hover content-fade-in p-4 sm:p-6">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <div className="min-w-0 flex-1 space-y-3 sm:space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge>{job.source || "Job feed"}</StatusBadge>
             {job.match_score != null || job.relevance_score != null ? (
@@ -72,9 +73,9 @@ export function JobCard({ job, showDescription = false }: JobCardProps) {
           </div>
 
           <div className="space-y-1.5">
-            <h3 className="text-lg font-semibold tracking-tight text-foreground">{job.title}</h3>
-            <p className="text-sm font-medium text-muted-foreground">{job.company}</p>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+            <h3 className="text-base sm:text-lg font-semibold tracking-tight text-foreground leading-snug">{job.title}</h3>
+            <p className="text-xs sm:text-sm font-medium text-muted-foreground">{job.company}</p>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5" />
                 {job.location || "Remote"}
@@ -89,7 +90,7 @@ export function JobCard({ job, showDescription = false }: JobCardProps) {
           </div>
 
           {job.match_reasons?.length ? (
-            <div className="surface-subtle rounded-[1.35rem] border border-border/70 p-4">
+            <div className="surface-subtle rounded-[1.15rem] sm:rounded-[1.35rem] border border-border/70 p-3 sm:p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Why it fits</p>
               <div className="mt-3 space-y-2.5">
                 {job.match_reasons.slice(0, 3).map((reason) => (
@@ -107,7 +108,7 @@ export function JobCard({ job, showDescription = false }: JobCardProps) {
           ) : null}
         </div>
 
-        <div className="grid min-w-full gap-2 sm:grid-cols-2 xl:min-w-[236px] xl:grid-cols-1">
+        <div className="grid min-w-full gap-2 grid-cols-2 sm:grid-cols-2 xl:min-w-[236px] xl:grid-cols-1">
           <Button asChild variant="default" className="w-full">
             <Link href={`/dashboard/jobs/${job.id}?tab=resume`}>
               <FileText className="h-3.5 w-3.5" />
@@ -143,4 +144,4 @@ export function JobCard({ job, showDescription = false }: JobCardProps) {
       </div>
     </SurfaceCard>
   );
-}
+});

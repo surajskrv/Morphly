@@ -11,3 +11,6 @@ class User(Document):
 
     class Settings:
         name = "users"
+        indexes = [
+            "email",  # Unique at app level, indexed for fast lookup
+        ]

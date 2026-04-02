@@ -77,3 +77,6 @@ class Preference(Document):
 
     class Settings:
         name = "preferences"
+        indexes = [
+            "user_id",  # One preference doc per user
+        ]

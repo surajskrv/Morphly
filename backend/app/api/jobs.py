@@ -1,14 +1,16 @@
 import logging
+import time
 from typing import List
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from kombu.exceptions import OperationalError
 
 from app.api.deps import get_current_user
 from app.models.job import Job
 from app.models.user import User
 from app.schemas.job import JobFetchStatusResponse, JobResponse
+from app.schemas.pagination import PaginatedResponse
 from app.services.job_matcher import JobMatcher
 from app.services.profile_service import (
     get_or_create_profile,
@@ -19,6 +21,27 @@ from app.worker.celery_app import celery_app
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+class TTLCache:
+    def __init__(self, ttl: int = 300):
+        self.ttl = ttl
+        self.cache: dict[str, tuple[float, any]] = {}
+
+    def get(self, key: str) -> any:
+        if key in self.cache:
+            timestamp, value = self.cache[key]
+            if time.time() - timestamp < self.ttl:
+                return value
+            else:
+                del self.cache[key]
+        return None
+
+    def set(self, key: str, value: any) -> None:
+        if len(self.cache) > 1000:
+            self.cache.clear()
+        self.cache[key] = (time.time(), value)
+
+RECOMMENDATION_CACHE = TTLCache(ttl=300)
 
 
 async def _get_job(job_id: str) -> Job | None:
@@ -39,22 +62,39 @@ def _serialize_job(job: Job, matcher: JobMatcher | None = None) -> dict:
         res["match_reasons"] = []
     return res
 
-@router.get("/", response_model=List[JobResponse])
+@router.get("/")
 async def get_jobs(
     skip: int = 0, limit: int = 100,
     current_user: User = Depends(get_current_user)
 ):
     profile = await get_or_create_profile(str(current_user.id))
     matcher = JobMatcher(profile)
+    total = await Job.count()
     jobs = await Job.find().sort(-Job.created_at).skip(skip).limit(limit).to_list()
-    return [_serialize_job(job, matcher) for job in jobs]
+    return PaginatedResponse(
+        items=[_serialize_job(job, matcher) for job in jobs],
+        total=total,
+        skip=skip,
+        limit=limit,
+        has_more=(skip + limit) < total,
+    )
 
-@router.get("/recommended", response_model=List[JobResponse])
+@router.get("/recommended")
 async def get_recommended_jobs(
     skip: int = 0, limit: int = 100,
     current_user: User = Depends(get_current_user)
 ):
     profile = await get_or_create_profile(str(current_user.id))
+    
+    # Cache key includes user ID, profile update time, pagination, and jobs count approximation
+    # to invalidate when new jobs arrive or profile changes.
+    total = await Job.count()
+    cache_key = f"{current_user.id}_{profile.updated_at.timestamp()}_{skip}_{limit}_{total}"
+
+    cached_response = RECOMMENDATION_CACHE.get(cache_key)
+    if cached_response:
+        return cached_response
+
     matcher = JobMatcher(profile)
 
     jobs = await Job.find().skip(skip).limit(limit).to_list()
@@ -73,10 +113,16 @@ async def get_recommended_jobs(
         reverse=True,
     )
 
-    results = []
-    for job in scored:
-        results.append(_serialize_job(job, matcher))
-    return results
+    response = PaginatedResponse(
+        items=[_serialize_job(job, matcher) for job in scored],
+        total=total,
+        skip=skip,
+        limit=limit,
+        has_more=(skip + limit) < total,
+    )
+    
+    RECOMMENDATION_CACHE.set(cache_key, response)
+    return response
 
 
 @router.get("/fetch-status", response_model=JobFetchStatusResponse)
@@ -105,11 +151,15 @@ async def trigger_job_fetch(
 
 
 @router.get("/{job_id}", response_model=JobResponse)
-async def get_job(job_id: str, current_user: User = Depends(get_current_user)):
+async def get_job(job_id: str, response: Response, current_user: User = Depends(get_current_user)):
     job = await _get_job(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 
     profile = await get_or_create_profile(str(current_user.id))
     matcher = JobMatcher(profile)
+    
+    # Cache job data for 5 minutes since jobs rarely mutate after creation
+    response.headers["Cache-Control"] = "public, max-age=300"
+    
     return _serialize_job(job, matcher)

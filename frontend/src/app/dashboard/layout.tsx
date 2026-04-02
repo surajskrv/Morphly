@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { DashboardNavLink } from "@/components/layout/dashboard-nav-link";
+import { ErrorBoundary } from "@/components/layout/error-boundary";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth";
 
@@ -40,7 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { checkAuth, logout, user } = useAuthStore();
   const [ready, setReady] = useState(false);
   const navScrollRef = useRef<HTMLDivElement>(null);
-  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const tabRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const [indicatorStyle, setIndicatorStyle] = useState({ width: 0, x: 0, opacity: 0 });
 
   const currentItem = NAV_ITEMS.find((item) => isNavItemActive(pathname, item.href));
@@ -108,16 +109,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [checkAuth, router]);
 
   useLayoutEffect(() => {
+    if (!ready) return;
     const frame = window.requestAnimationFrame(syncIndicator);
     return () => window.cancelAnimationFrame(frame);
-  }, [syncIndicator]);
+  }, [syncIndicator, ready]);
 
   useEffect(() => {
+    if (!ready) return;
     const frame = window.requestAnimationFrame(centerActiveTab);
     return () => window.cancelAnimationFrame(frame);
-  }, [centerActiveTab]);
+  }, [centerActiveTab, ready]);
 
   useEffect(() => {
+    if (!ready) return;
     const handleSync = () => syncIndicator();
     const scrollContainer = navScrollRef.current;
 
@@ -138,7 +142,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       scrollContainer?.removeEventListener("scroll", handleSync);
       observer?.disconnect();
     };
-  }, [activeHref, syncIndicator]);
+  }, [activeHref, syncIndicator, ready]);
 
   if (!ready) {
     return (
@@ -150,9 +154,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-section-cream">
-      <header className="sticky top-0 z-20 border-b border-border/60 bg-background/88 backdrop-blur-xl">
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4">
-          <div className="grid gap-3 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center">
+      <header className="sticky top-0 z-20 border-b border-border/60 bg-background/88 backdrop-blur-xl safe-top">
+        <div className="mx-auto max-w-7xl px-4 py-2.5 sm:px-6 sm:py-3.5">
+          <div className="grid gap-2 sm:gap-3 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center">
             <div className="flex min-w-0 items-center gap-3 lg:justify-self-start">
               <Link
                 href="/dashboard"
@@ -215,7 +219,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl min-w-0 px-4 py-6 sm:px-6 sm:py-7">{children}</main>
+      <main className="mx-auto max-w-7xl min-w-0 px-4 py-5 sm:px-6 sm:py-7 safe-bottom">
+        <ErrorBoundary>{children}</ErrorBoundary>
+      </main>
     </div>
   );
 }

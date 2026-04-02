@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 import api from "@/services/api";
+import { toast } from "sonner";
 
 export interface Job {
   id: string;
@@ -46,8 +47,10 @@ export const useJobsStore = create<JobsState>()((set, get) => ({
     set({ loading: true });
     try {
       const res = await api.get("/jobs/recommended");
-      set({ jobs: res.data, loading: false });
-    } catch {
+      const data = res.data;
+      set({ jobs: data.items ?? data, loading: false });
+    } catch (err) {
+      toast.error('Failed to load recommended jobs. Please try again.');
       set({ loading: false });
     }
   },

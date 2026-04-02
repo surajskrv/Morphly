@@ -10,8 +10,8 @@ export function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border/60 bg-background/88 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
+    <header className="sticky top-0 z-20 border-b border-border/60 bg-background/88 backdrop-blur-xl safe-top">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:gap-4 sm:px-6 sm:py-3.5">
         <Link href="/" className="flex min-w-0 items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/10 bg-primary/10 text-primary shadow-[inset_0_1px_0_oklch(1_0_0_/_28%)] sm:h-10 sm:w-10 sm:rounded-2xl">
             <Sparkles className="h-4.5 w-4.5" />

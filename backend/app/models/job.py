@@ -48,3 +48,7 @@ class Job(Document):
 
     class Settings:
         name = "jobs"
+        indexes = [
+            "fingerprint",   # Deduplication lookups
+            "-created_at",   # Sorted listing queries (descending)
+        ]

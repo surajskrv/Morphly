@@ -9,14 +9,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Morphly"
     MONGODB_URL: str = "mongodb://localhost:27017"
-    SECRET_KEY: str = "supersecretkey"  # Should be set securely in .env
+    DATABASE_NAME: str = "morphly"
+    SECRET_KEY: str  # REQUIRED — must be set in .env, no default
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     REDIS_URL: str = "redis://localhost:6379/0"
     BACKEND_CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://35.238.104.251:3000",
     ]
     
     # External APIs
@@ -24,6 +25,7 @@ class Settings(BaseSettings):
     ADZUNA_APP_ID: str = ""
     ADZUNA_API_KEY: str = ""
     JSEARCH_API_KEY: str = ""
+    PROXY_LIST: list[str] = []
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod

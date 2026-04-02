@@ -10,6 +10,6 @@ async def init_db():
     from app.models.application import Application
 
     client = AsyncIOMotorClient(settings.MONGODB_URL)
-    database = client.morphly
+    database = client[settings.DATABASE_NAME]
     
     await init_beanie(database, document_models=[User, Job, Preference, Application])

@@ -25,3 +25,8 @@ class Application(Document):
 
     class Settings:
         name = "applications"
+        indexes = [
+            [("user_id", 1), ("job_id", 1)],  # Compound index for upsert lookups
+            [("user_id", 1), ("status", 1)],  # Compound index for filtering
+            "-updated_at",                      # Sorted listing
+        ]

@@ -4,6 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 import jwt
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from app.core.config import settings
+from app.core.token_blacklist import is_token_blacklisted
 from app.models.user import User
 
 logger = logging.getLogger(__name__)
@@ -47,7 +48,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         logger.error(f"Unexpected error during token decoding: {e}", exc_info=True)
         raise credentials_exception
     
-    # 3. Fetch user from database
+    # 3. Check token blacklist
+    if is_token_blacklisted(token):
+        logger.info("Token has been blacklisted (user logged out)")
+        raise credentials_exception
+    
+    # 4. Fetch user from database
     user = await User.find_one(User.email == email)
     
     # 4. Validate user exists

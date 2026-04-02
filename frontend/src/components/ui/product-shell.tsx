@@ -19,7 +19,7 @@ export function PageHeader({
   return (
     <section
       className={cn(
-        "surface-panel surface-grid relative overflow-hidden rounded-[1.6rem] border border-border/70 px-4 py-5 sm:rounded-[2rem] sm:px-7 sm:py-7",
+        "surface-panel surface-grid relative overflow-hidden rounded-[1.4rem] border border-border/70 px-4 py-5 sm:rounded-[2rem] sm:px-7 sm:py-7",
         className
       )}
     >
@@ -27,11 +27,11 @@ export function PageHeader({
         <div className="max-w-3xl space-y-3">
           {eyebrow ? <div>{eyebrow}</div> : null}
           <div className="space-y-2">
-            <h1 className="text-balance text-[1.7rem] font-semibold tracking-tight text-foreground sm:text-[2rem]">
+            <h1 className="text-balance text-[1.45rem] font-semibold leading-tight tracking-tight text-foreground sm:text-[1.7rem] md:text-[2rem]">
               {title}
             </h1>
             {description ? (
-              <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-[15px]">
+              <p className="max-w-2xl text-[13px] leading-6 text-muted-foreground sm:text-sm sm:leading-6 md:text-[15px]">
                 {description}
               </p>
             ) : null}
@@ -69,7 +69,7 @@ export function SurfaceCard({ className, ...props }: React.ComponentProps<"secti
   return (
     <section
       className={cn(
-        "surface-card rounded-[1.75rem] border border-border/70 bg-card/96 p-5 sm:p-6",
+        "surface-card rounded-[1.5rem] border border-border/70 bg-card/96 p-4 sm:rounded-[1.75rem] sm:p-6 overflow-hidden",
         className
       )}
       {...props}
@@ -89,10 +89,10 @@ export function SectionHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", className)}>
+    <div className={cn("flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-start sm:justify-between", className)}>
       <div className="space-y-1">
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2>
-        {description ? <p className="text-sm leading-6 text-muted-foreground">{description}</p> : null}
+        <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">{title}</h2>
+        {description ? <p className="text-xs sm:text-sm leading-5 sm:leading-6 text-muted-foreground">{description}</p> : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>
@@ -115,11 +115,11 @@ export function MetricTile({
   className?: string;
 }) {
   return (
-    <div className={cn("surface-subtle rounded-[1.5rem] border border-border/70 p-4 sm:p-5", className)}>
+    <div className={cn("surface-subtle rounded-[1.25rem] sm:rounded-[1.5rem] border border-border/70 p-3.5 sm:p-5", className)}>
       <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
         <div
           className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-2xl border",
+            "flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl sm:rounded-2xl border",
             tone === "success"
               ? "border-emerald-100 bg-emerald-50 text-emerald-700"
               : tone === "attention"
@@ -131,8 +131,8 @@ export function MetricTile({
         </div>
         <span>{label}</span>
       </div>
-      <div className="mt-4 text-3xl font-semibold tracking-tight text-foreground">{value}</div>
-      {detail ? <p className="mt-2 text-sm leading-6 text-muted-foreground">{detail}</p> : null}
+      <div className="mt-3 sm:mt-4 text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">{value}</div>
+      {detail ? <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-muted-foreground">{detail}</p> : null}
     </div>
   );
 }
@@ -206,18 +206,18 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "surface-subtle flex flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-border/80 px-4 py-8 text-center sm:rounded-[1.75rem] sm:px-5 sm:py-10",
+        "surface-subtle flex flex-col items-center justify-center rounded-[1.25rem] sm:rounded-[1.75rem] border border-dashed border-border/80 px-4 py-8 text-center sm:px-5 sm:py-10",
         className
       )}
     >
       {Icon ? (
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/10 bg-primary/10 text-primary">
+        <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl border border-primary/10 bg-primary/10 text-primary">
           <Icon className="h-5 w-5" />
         </div>
       ) : null}
-      <h3 className="mt-4 text-base font-semibold tracking-tight text-foreground">{title}</h3>
-      <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
-      {action ? <div className="mt-5 flex flex-wrap items-center justify-center gap-2">{action}</div> : null}
+      <h3 className="mt-3 sm:mt-4 text-sm sm:text-base font-semibold tracking-tight text-foreground">{title}</h3>
+      <p className="mt-1.5 sm:mt-2 max-w-md text-xs sm:text-sm leading-5 sm:leading-6 text-muted-foreground">{description}</p>
+      {action ? <div className="mt-4 sm:mt-5 flex w-full flex-col sm:w-auto sm:flex-row items-center justify-center gap-2">{action}</div> : null}
     </div>
   );
 }
@@ -277,7 +277,7 @@ export function FilterChips<T extends string>({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+    <div className={cn("flex flex-wrap items-center gap-1.5 sm:gap-2", className)}>
       {items.map((item) => {
         const active = item.value === selected;
         return (
@@ -286,7 +286,7 @@ export function FilterChips<T extends string>({
             type="button"
             onClick={() => onSelect(item.value)}
             className={cn(
-              "inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-200",
+              "inline-flex items-center rounded-full border px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-200",
               active
                 ? "border-primary bg-primary text-primary-foreground shadow-sm"
                 : "border-border/70 bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
@@ -315,15 +315,15 @@ export function WorkspacePane({
   children: React.ReactNode;
 }) {
   return (
-    <section className={cn("surface-card rounded-[1.75rem] border border-border/70 bg-card/96 p-5 sm:p-6", className)}>
+    <section className={cn("surface-card rounded-[1.5rem] sm:rounded-[1.75rem] border border-border/70 bg-card/96 p-4 sm:p-6", className)}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2>
-          {description ? <p className="text-sm leading-6 text-muted-foreground">{description}</p> : null}
+          <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">{title}</h2>
+          {description ? <p className="text-xs sm:text-sm leading-5 sm:leading-6 text-muted-foreground">{description}</p> : null}
         </div>
-        {headerAction ? <div className="shrink-0">{headerAction}</div> : null}
+        {headerAction ? <div className="shrink-0 w-full sm:w-auto">{headerAction}</div> : null}
       </div>
-      <div className="mt-5">{children}</div>
+      <div className="mt-4 sm:mt-5">{children}</div>
     </section>
   );
 }

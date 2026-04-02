@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import re
 
+from beanie import PydanticObjectId
+
 from app.models.job import Job
 from app.models.user import User
 from app.schemas.ai import CoverLetterResponse, GeneratedDocumentSection, TailoredResumeResponse
@@ -177,7 +179,7 @@ def _build_grounding(job: Job, merged_profile, resume_sections: dict[str, str], 
 
 
 async def generate_resume_for_job(user_id: str, job_id: str, resume_id: str | None = None) -> TailoredResumeResponse:
-    job = await Job.get(job_id)
+    job = await Job.get(PydanticObjectId(job_id))
     if not job:
         raise ValueError("Job not found")
 
@@ -200,7 +202,7 @@ async def generate_resume_for_job(user_id: str, job_id: str, resume_id: str | No
 
 
 async def generate_cover_letter_for_job(user_id: str, job_id: str, resume_id: str | None = None) -> CoverLetterResponse:
-    job = await Job.get(job_id)
+    job = await Job.get(PydanticObjectId(job_id))
     if not job:
         raise ValueError("Job not found")
 
